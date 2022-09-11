@@ -15,7 +15,7 @@ import { formatEther, parseEther } from "@ethersproject/units";
 import { Hints, ExampleUI, Subgraph } from "./views"
 import { useThemeSwitcher } from "react-css-theme-switcher";
 import { INFURA_ID, DAI_ADDRESS, DAI_ABI, NETWORK, NETWORKS } from "./constants";
-import { CreateTransaction, Transactions, Owners, FrontPage } from "./views"
+import { CreateTransaction, Transactions, Owners, FrontPage, Wallets } from "./views"
 
 /*
     Welcome to 🏗 scaffold-eth !
@@ -250,7 +250,10 @@ function App(props) {
 
         <Menu style={{ textAlign:"center" }} selectedKeys={[route]} mode="horizontal">
           <Menu.Item key="/">
-            <Link onClick={()=>{setRoute("/")}} to="/">MultiSig</Link>
+            <Link onClick={()=>{setRoute("/")}} to="/">Wallets</Link>
+          </Menu.Item>
+          <Menu.Item key="/multisig">
+            <Link onClick={()=>{setRoute("/multisig")}} to="/">MultiSig</Link>
           </Menu.Item>
           <Menu.Item key="/owners">
             <Link onClick={()=>{setRoute("/owners")}} to="/owners">Owners</Link>
@@ -268,6 +271,15 @@ function App(props) {
 
         <Switch>
           <Route exact path="/">
+            <Wallets 
+              localProvider={localProvider}
+              readContracts={readContracts}
+              price={price}
+              mainnetProvider={mainnetProvider}
+              blockExplorer={blockExplorer}
+             />
+          </Route>
+          <Route exact path="/multisig">
             <FrontPage
               executeTransactionEvents={executeTransactionEvents}
               contractName={contractName}
