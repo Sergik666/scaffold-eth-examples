@@ -1,0 +1,25 @@
+.wallet-preview {
+  padding-top: 20px;
+  padding-bottom: 10px;
+  border: dotted 1px;
+  margin: 10px;
+  border-radius: 15px;
+  width: 245px;
+  height: 375px;
+}
+
+.wallet-preview p {
+  font-size: 32px;
+  margin: 0;
+  cursor: pointer;
+}
+
+.wallet-preview p.create {
+  font-size: 176px;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+
+.wallet-preview p.action {
+  color: rgb(44, 170, 217);
+}
