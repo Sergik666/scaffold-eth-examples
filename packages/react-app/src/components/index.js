@@ -18,3 +18,5 @@ export { default as TransactionDetailsModal} from "./TransactionDetailsModal";
 export { default as TransactionListItem} from "./TransactionListItem";
 export { default as ThemeSwitch } from "./ThemeSwitch";
 export { default as WalletPreview } from "./WalletPreview";
+export { default as CreateWalletModal } from "./CreateWalletModal";
+

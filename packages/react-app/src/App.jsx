@@ -274,6 +274,8 @@ function App(props) {
             <Wallets 
               localProvider={localProvider}
               readContracts={readContracts}
+              writeContracts={writeContracts}
+              tx={tx}
               price={price}
               mainnetProvider={mainnetProvider}
               blockExplorer={blockExplorer}
@@ -363,6 +365,15 @@ function App(props) {
             />
           </Route>
           <Route path="/debug">
+            <Contract
+              name="MultiSigWalletsManager"
+              signer={userProvider.getSigner()}
+              provider={localProvider}
+              address={address}
+              blockExplorer={blockExplorer}
+              purpose={purpose}
+              setPurposeEvents={setPurposeEvents}
+            />
             <Contract
               name="MetaMultiSigWallet"
               signer={userProvider.getSigner()}

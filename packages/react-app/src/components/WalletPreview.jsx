@@ -4,13 +4,19 @@ import Balance from "./Balance";
 import QR from "qrcode.react";
 import './WalletPreview.css';
 
-export default function WalletPreview({ address, mainnetProvider, localProvider, blockExplorer, price }) {
+export default function WalletPreview({ address, mainnetProvider, localProvider, blockExplorer, price, onClick }) {
 
   if (!address) {
     return (
       <div className="wallet-preview">
-        <p className="create">+</p>
-        <p className="action">Create Wallet</p>
+        <p className="create"
+          onClick={onClick}
+          role="presentation"
+        >+</p>
+        <p className="action"
+          onClick={onClick}
+          role="presentation"
+        >Create Wallet</p>
       </div>);
   }
 
@@ -45,7 +51,10 @@ export default function WalletPreview({ address, mainnetProvider, localProvider,
         />
       </div>
 
-      <p className="open action">Open Wallet</p>
+      <p className="open action"
+        onClick={onClick}
+        role="presentation"
+      >Open Wallet</p>
 
     </div>
   );

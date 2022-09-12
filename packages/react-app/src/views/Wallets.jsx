@@ -1,29 +1,62 @@
-import React from "react";
+import React, { useState } from "react";
 import WalletPreview from "../components/WalletPreview";
+import CreateWalletModal from "../components/CreateWalletModal";
+import { useContractReader } from "../hooks";
 
-export default function Wallets({ mainnetProvider, localProvider, blockExplorer, price }) {
+export default function Wallets({ readContracts, writeContracts, tx, mainnetProvider, localProvider, blockExplorer, price }) {
 
-  let walletsAddress = [
-    // '0x6F77D0bCD7a9C3D4344000aBa4015b2880ce16C2',
-    // '0x6F77D0bCD7a9C3D4344000aBa4015b2880ce16C2',
-    // '0x6F77D0bCD7a9C3D4344000aBa4015b2880ce16C2',
-    // '0x6F77D0bCD7a9C3D4344000aBa4015b2880ce16C2',
-  ];
+  const [isCreateWalletModalVisible, setIsCreateWalletModalVisible] = useState(false);
 
-  walletsAddress = [...walletsAddress, ''];
+  let walletsAddress = useContractReader(readContracts, "MultiSigWalletsManager", "getAllWallets");
+  if (walletsAddress) {
+    walletsAddress = [...walletsAddress, ''];
+  } else {
+    walletsAddress = [''];
+  }
+
+  const showCreateWalletDialog = () => {
+    setIsCreateWalletModalVisible(true);
+  };
+
+  const showWallet = (walletAddress) => {
+    alert('Show wallet:' + walletAddress);
+  };
+
+  const createWallet = async (wallets, signaturesRequired) => {
+    const { chainId } = await mainnetProvider.getNetwork();
+    if(await tx(writeContracts['MultiSigWalletsManager'].createWallet(chainId, wallets, signaturesRequired)))
+    { 
+      setIsCreateWalletModalVisible(false); 
+    }
+  };
 
   return (
-    <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-around' }}>
-      {walletsAddress.map((walletAddress) =>
-        <WalletPreview
-          style={{ padding: '10px' }}
-          address={walletAddress}
-          mainnetProvider={mainnetProvider}
-          localProvider={localProvider}
-          blockExplorer={blockExplorer}
-          price={price}
-        />
-      )}
-    </div>
+    <>
+      <CreateWalletModal
+        visible={isCreateWalletModalVisible}
+        handleOk={() => { setIsCreateWalletModalVisible(false); }}
+        mainnetProvider={mainnetProvider}
+        createWallet={createWallet}
+      />
+      <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-around' }}>
+        {walletsAddress.map((walletAddress) =>
+          <WalletPreview
+            style={{ padding: '10px' }}
+            address={walletAddress}
+            mainnetProvider={mainnetProvider}
+            localProvider={localProvider}
+            blockExplorer={blockExplorer}
+            price={price}
+            onClick={() => {
+              if (walletAddress) {
+                showWallet(walletAddress);
+              } else {
+                showCreateWalletDialog();
+              };
+            }}
+          />
+        )}
+      </div>
+    </>
   );
 }
