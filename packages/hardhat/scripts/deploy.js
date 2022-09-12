@@ -7,6 +7,7 @@ const R = require("ramda");
 
 const main = async () => {
 
+
   console.log("\n\n 📡 Deploying...\n");
 
 // frontend address = 0xc229416BE6a1c18D30fafB28Cf33e472D47B0fc3 (localhost)
@@ -19,6 +20,8 @@ const main = async () => {
     1
   ])
 
+
+  const multiSigWalletsManager = await deploy("MultiSigWalletsManager");
 
 
   //const yourContract = await deploy("YourContract") // <-- add in constructor args like line 19 vvvv
