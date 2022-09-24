@@ -7,7 +7,7 @@ import { Row, Col, Button, Menu, Alert, Switch as SwitchD } from "antd";
 import Web3Modal from "web3modal";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import { useUserAddress } from "eth-hooks";
-import { Balance, Header, Account, Faucet, Ramp, Contract, GasGauge, Address, ThemeSwitch } from "./components";
+import { Balance, Header, Account, Faucet, Ramp, Contract, GasGauge, Address, ThemeSwitch, WalletManagement } from "./components";
 import { useExchangePrice, useGasPrice, useUserProvider, useContractLoader, useContractReader, useEventListener, useBalance, useExternalContractLoader, useOnBlock } from "./hooks";
 import { Transactor } from "./helpers";
 import { formatEther, parseEther } from "@ethersproject/units";
@@ -138,11 +138,13 @@ function App(props) {
   // Then read your DAI balance like:
   const myMainnetDAIBalance = useContractReader({DAI: mainnetDAIContract},"DAI", "balanceOf",["0x34aA3F359A9D614239015126635CE7732c18fDF3"])
 
-  // keep track of a variable from the contract in the local React state:
-  const purpose = useContractReader(readContracts,"YourContract", "purpose")
 
-  //📟 Listen for broadcast events
-  const setPurposeEvents = useEventListener(readContracts, "YourContract", "SetPurpose", localProvider, 1);
+
+  // // keep track of a variable from the contract in the local React state:
+  // const purpose = useContractReader(readContracts,"YourContract", "purpose")
+
+  // //📟 Listen for broadcast events
+  // const setPurposeEvents = useEventListener(readContracts, "YourContract", "SetPurpose", localProvider, 1);
 
   /*
   const addressFromENS = useResolveName(mainnetProvider, "austingriffith.eth");
@@ -279,8 +281,10 @@ function App(props) {
               price={price}
               mainnetProvider={mainnetProvider}
               blockExplorer={blockExplorer}
+              walletsAddress={walletsAddress}
              />
           </Route>
+          <Route path="/wallet/:value" component ={WalletManagement} />
           <Route exact path="/multisig">
             <FrontPage
               executeTransactionEvents={executeTransactionEvents}
@@ -371,8 +375,8 @@ function App(props) {
               provider={localProvider}
               address={address}
               blockExplorer={blockExplorer}
-              purpose={purpose}
-              setPurposeEvents={setPurposeEvents}
+              // purpose={purpose}
+              // setPurposeEvents={setPurposeEvents}
             />
             <Contract
               name="MetaMultiSigWallet"
@@ -380,8 +384,8 @@ function App(props) {
               provider={localProvider}
               address={address}
               blockExplorer={blockExplorer}
-              purpose={purpose}
-              setPurposeEvents={setPurposeEvents}
+              // purpose={purpose}
+              // setPurposeEvents={setPurposeEvents}
             />
           </Route>
           <Route path="/mainnetdai">
