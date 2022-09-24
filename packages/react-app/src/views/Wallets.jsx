@@ -1,25 +1,29 @@
 import React, { useState } from "react";
+import { useHistory } from "react-router-dom";
 import WalletPreview from "../components/WalletPreview";
 import CreateWalletModal from "../components/CreateWalletModal";
 import { useContractReader } from "../hooks";
 
-export default function Wallets({ readContracts, writeContracts, tx, mainnetProvider, localProvider, blockExplorer, price }) {
+export default function Wallets({ readContracts, writeContracts, tx, mainnetProvider, localProvider, blockExplorer, price, walletsAddress }) {
 
   const [isCreateWalletModalVisible, setIsCreateWalletModalVisible] = useState(false);
 
-  let walletsAddress = useContractReader(readContracts, "MultiSigWalletsManager", "getAllWallets");
-  if (walletsAddress) {
-    walletsAddress = [...walletsAddress, ''];
+  let walletsAddressWithEmptyAddress = walletsAddress;
+  if (walletsAddressWithEmptyAddress) {
+    walletsAddressWithEmptyAddress = [...walletsAddress, ''];
   } else {
-    walletsAddress = [''];
+    walletsAddressWithEmptyAddress = [''];
   }
 
   const showCreateWalletDialog = () => {
     setIsCreateWalletModalVisible(true);
   };
 
+  const history = useHistory();
+
   const showWallet = (walletAddress) => {
-    alert('Show wallet:' + walletAddress);
+
+    history.push(`/wallet/${walletAddress}`);
   };
 
   const createWallet = async (wallets, signaturesRequired) => {
@@ -37,10 +41,12 @@ export default function Wallets({ readContracts, writeContracts, tx, mainnetProv
         handleOk={() => { setIsCreateWalletModalVisible(false); }}
         mainnetProvider={mainnetProvider}
         createWallet={createWallet}
+        key='new'
       />
       <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-around' }}>
-        {walletsAddress.map((walletAddress) =>
+        {walletsAddressWithEmptyAddress.map((walletAddress) =>
           <WalletPreview
+            key={walletAddress}
             style={{ padding: '10px' }}
             address={walletAddress}
             mainnetProvider={mainnetProvider}

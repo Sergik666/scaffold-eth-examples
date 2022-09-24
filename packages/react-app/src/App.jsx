@@ -138,6 +138,7 @@ function App(props) {
   // Then read your DAI balance like:
   const myMainnetDAIBalance = useContractReader({DAI: mainnetDAIContract},"DAI", "balanceOf",["0x34aA3F359A9D614239015126635CE7732c18fDF3"])
 
+  const walletsAddress = useContractReader(readContracts, "MultiSigWalletsManager", "getAllWallets", localProvider, 1000);
 
 
   // // keep track of a variable from the contract in the local React state:
