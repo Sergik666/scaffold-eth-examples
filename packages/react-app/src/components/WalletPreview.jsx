@@ -34,11 +34,10 @@ export default function WalletPreview({ address, mainnetProvider, localProvider,
       <div>
         <QR
           value={address}
-          size="180"
+          size={180}
           level="H"
           includeMargin
           renderAs="svg"
-          imageSettings={{ excavate: false }}
         />
       </div>
 
