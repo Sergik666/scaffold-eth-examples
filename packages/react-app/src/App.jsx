@@ -285,7 +285,14 @@ function App(props) {
               walletsAddress={walletsAddress}
              />
           </Route>
-          <Route path="/wallet/:value" component ={WalletManagement} />
+          <Route path="/wallet/:value" >
+            <WalletManagement
+              mainnetProvider={mainnetProvider}
+              localProvider={localProvider}
+              blockExplorer={blockExplorer}
+              price={price}
+            />
+          </Route>
           <Route exact path="/multisig">
             <FrontPage
               executeTransactionEvents={executeTransactionEvents}
