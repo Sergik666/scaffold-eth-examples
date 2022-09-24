@@ -22,7 +22,7 @@ export default function CreateWalletModal({ visible, handleOk, mainnetProvider, 
         Owners:
       </div>
       {wallets.map((wallet, index) =>
-        <div style={{ margin: 8, padding: 8, display: 'flex' }}>
+        <div key={wallet} style={{ margin: 8, padding: 8, display: 'flex' }}>
           <div style={{ flexGrow: 1 }}>
             <AddressInput
               autoFocus
