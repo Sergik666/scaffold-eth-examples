@@ -7,7 +7,7 @@ import { Row, Col, Button, Menu, Alert, Switch as SwitchD } from "antd";
 import Web3Modal from "web3modal";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import { useUserAddress } from "eth-hooks";
-import { Balance, Header, Account, Faucet, Ramp, Contract, GasGauge, Address, ThemeSwitch, WalletManagement } from "./components";
+import { Balance, Header, Account, Faucet, Ramp, Contract, GasGauge, Address, ThemeSwitch } from "./components";
 import { useExchangePrice, useGasPrice, useUserProvider, useContractLoader, useContractReader, useEventListener, useBalance, useExternalContractLoader, useOnBlock } from "./hooks";
 import { Transactor } from "./helpers";
 import { formatEther, parseEther } from "@ethersproject/units";
@@ -15,7 +15,7 @@ import { formatEther, parseEther } from "@ethersproject/units";
 import { Hints, ExampleUI, Subgraph } from "./views"
 import { useThemeSwitcher } from "react-css-theme-switcher";
 import { INFURA_ID, DAI_ADDRESS, DAI_ABI, NETWORK, NETWORKS } from "./constants";
-import { CreateTransaction, Transactions, Owners, FrontPage, Wallets } from "./views"
+import { CreateTransaction, Transactions, Owners, FrontPage, Wallets, WalletManagement } from "./views";
 
 /*
     Welcome to 🏗 scaffold-eth !
