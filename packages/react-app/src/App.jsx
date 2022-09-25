@@ -287,6 +287,9 @@ function App(props) {
           </Route>
           <Route path="/wallet/:value" >
             <WalletManagement
+              userProvider={userProvider}
+              userAddress={address}
+              poolServerUrl={poolServerUrl}
               mainnetProvider={mainnetProvider}
               localProvider={localProvider}
               blockExplorer={blockExplorer}
