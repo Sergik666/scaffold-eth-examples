@@ -34,11 +34,10 @@ export default function WalletManagement({
     setIsAddOwnerWalletModalVisible(true);
   };
 
-  const addOwnerAddress = async (newAddress, signaturesRequiredCount) => {
+  const createTransaction = async (methodName, args, amount) => {
     const to = walletContract.address;
-    const value = 0;
-    const callData = walletContract.interface.encodeFunctionData("addSigner", [newAddress, signaturesRequiredCount]);
-    const hash = await walletContract.getTransactionHash(nonce, to, value, callData);
+    const callData = walletContract.interface.encodeFunctionData(methodName, args);
+    const hash = await walletContract.getTransactionHash(nonce, to, amount, callData);
     const signature = await userProvider.send("personal_sign", [hash, userAddress]);
     const recover = await walletContract.recover(hash, signature);
     const isOwner = await walletContract.isOwner(recover);
@@ -48,7 +47,7 @@ export default function WalletManagement({
         address: walletContract.address,
         nonce: nonce.toNumber(),
         to,
-        amount: value,
+        amount,
         data: callData,
         hash,
         signatures: [signature],
@@ -56,6 +55,14 @@ export default function WalletManagement({
       });
       console.log(res.data.hash);
     }
+  };
+
+  const addOwnerAddress = async (newAddress, signaturesRequiredCount) => {
+    await createTransaction("addSigner", [newAddress, signaturesRequiredCount], 0);
+  };
+
+  const removeOwnerAddress = async (ownerAddress, signaturesRequiredCount) => {
+    await createTransaction("removeSigner", [ownerAddress, signaturesRequiredCount], 0);
   };
 
   const updateOwners = (ownerAddress, add) => {
