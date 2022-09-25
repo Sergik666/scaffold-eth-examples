@@ -21,7 +21,8 @@ export default function WalletManagement({
 }) {
 
   const [owners, setOwners] = useState([]);
-  const [isAddOwnerWalletModalVisible, setIsAddOwnerWalletModalVisible] = useState(false);
+  const [modalVisibleMode, setModalVisibleMode] = useState();
+  const [removeAddress, setRemoveAddress] = useState();
 
   const { value: address } = useParams();
 
@@ -30,8 +31,16 @@ export default function WalletManagement({
   const signaturesRequired = useContractReader({ MetaMultiSigWallet: walletContract }, "MetaMultiSigWallet", "signaturesRequired", 1000);
   const nonce = useContractReader({ MetaMultiSigWallet: walletContract }, "MetaMultiSigWallet", "nonce", 1000);
 
-  const showAddOwnerModal = () => {
-    setIsAddOwnerWalletModalVisible(true);
+  const showModal = (mode, removeOwnerAddress = null) => {
+    if (removeOwnerAddress) {
+      setRemoveAddress(removeOwnerAddress);
+    }
+    setModalVisibleMode(mode);
+  };
+
+  const hideModal = () => {
+    setRemoveAddress(null);
+    setModalVisibleMode(null);
   };
 
   const createTransaction = async (methodName, args, amount) => {
@@ -59,10 +68,12 @@ export default function WalletManagement({
 
   const addOwnerAddress = async (newAddress, signaturesRequiredCount) => {
     await createTransaction("addSigner", [newAddress, signaturesRequiredCount], 0);
+    hideModal();
   };
 
   const removeOwnerAddress = async (ownerAddress, signaturesRequiredCount) => {
     await createTransaction("removeSigner", [ownerAddress, signaturesRequiredCount], 0);
+    hideModal();
   };
 
   const updateOwners = (ownerAddress, add) => {
@@ -84,8 +95,8 @@ export default function WalletManagement({
     };
 
     if (walletContract) {
-      if (typeof localProvider !== "undefined") {
-        localProvider.resetEventsBlock(1);
+      if (typeof userProvider !== "undefined") {
+        userProvider.resetEventsBlock(1);
       }
 
       walletContract.on("Owner", ownerEvent);
@@ -103,12 +114,16 @@ export default function WalletManagement({
   return (
     <>
       <AddOwnerWalletModal
-        visible={isAddOwnerWalletModalVisible}
-        handleOk={() => { setIsAddOwnerWalletModalVisible(false); }}
+        visible={modalVisibleMode != null}
+        handleOk={() => { hideModal(); }}
         mainnetProvider={mainnetProvider}
+        blockExplorer={blockExplorer}
         signaturesRequired={signaturesRequired}
         owners={owners}
+        mode={modalVisibleMode}
         addOwnerAddress={addOwnerAddress}
+        removeAddress={removeAddress}
+        removeOwnerAddress={removeOwnerAddress}
       />
       <div className="wallet-management">
         <div className="wallet-information">
@@ -162,9 +177,9 @@ export default function WalletManagement({
                       fontSize={16}
                     />
                     <Button
-                      disabled="true"
+                      disabled={!owners || owners.length <= 1}
                       onClick={() => {
-                        console.log('del');
+                        showModal('remove', item);
                       }}
                     >x</Button>
                   </List.Item>
@@ -173,7 +188,7 @@ export default function WalletManagement({
                     <Button
                       style={{ flexGrow: 1 }}
                       onClick={() => {
-                        showAddOwnerModal();
+                        showModal('add');
                       }}
                     >+</Button>
                   </List.Item>

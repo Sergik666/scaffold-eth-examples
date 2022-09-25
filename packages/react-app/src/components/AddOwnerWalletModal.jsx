@@ -1,14 +1,29 @@
 import React, { useState } from "react";
 import { Button, Modal, Input } from "antd";
 import AddressInput from "./AddressInput";
+import Address from "./Address";
 
-export default function AddOwnerWalletModal({ visible, handleOk, mainnetProvider, owners, signaturesRequired, addOwnerAddress }) {
+export default function AddOwnerWalletModal({
+  visible,
+  handleOk,
+  mainnetProvider,
+  blockExplorer,
+  owners,
+  signaturesRequired,
+  mode,
+  addOwnerAddress,
+  removeAddress,
+  removeOwnerAddress,
+}) {
+
+  const modeAdd = 'add';
+  const modeRemove = 'remove';
 
   const [newAddress, setNewAddress] = useState();
   const [newSignaturesRequired, setNewSignaturesRequired] = useState();
 
   const isAddressExist = () => {
-    return newAddress && owners && owners.includes(newAddress);
+    return mode === modeAdd && newAddress && owners && owners.includes(newAddress);
   };
 
   const signaturesRequiredCount = () => {
@@ -19,25 +34,37 @@ export default function AddOwnerWalletModal({ visible, handleOk, mainnetProvider
     return signaturesRequiredCount() > owners.length + 1;
   }
 
-  const canAddAddress = () => {
-    return newAddress
-      && owners && !owners.includes(newAddress)
-      && signaturesRequiredCount() > 0
-      && !isSignaturesRequiredCountNotValid();
+  const confirmAvailable = () => {
+    if (mode === modeAdd) {
+      return newAddress
+        && owners && !owners.includes(newAddress)
+        && signaturesRequiredCount() > 0
+        && !isSignaturesRequiredCountNotValid();
+    }
+
+    if (mode === modeRemove) {
+      return signaturesRequiredCount() > 0 && !isSignaturesRequiredCountNotValid();
+
+    }
+
+    return false;
   };
 
-  return (
-    <Modal
-      title="Add Owner to Wallet"
-      visible={visible}
-      onCancel={handleOk}
-      destroyOnClose
-      onOk={handleOk}
-      footer={null}
-      closable
-      maskClosable
-    >
-      <div style={{ margin: 8, padding: 8, display: 'flex' }}>
+  const title = () => {
+    if (mode === modeAdd) {
+      return "Add Owner to Wallet";
+    }
+
+    if (mode === modeRemove) {
+      return "Remove Owner from Wallet";
+    }
+
+    return "";
+  }
+
+  const renderAddress = () => {
+    if (mode === modeAdd) {
+      return (<div style={{ margin: 8, padding: 8, display: 'flex' }}>
 
         <div style={{ flexGrow: 1 }}>
           <AddressInput
@@ -51,7 +78,35 @@ export default function AddOwnerWalletModal({ visible, handleOk, mainnetProvider
           />
 
         </div>
-      </div>
+      </div>)
+    }
+
+    if (mode === modeRemove) {
+      return (<div style={{ margin: 8, padding: 8, display: 'flex' }}>
+
+        <div style={{ flexGrow: 1 }}>
+          <Address
+            address={removeAddress}
+            ensProvider={mainnetProvider}
+            blockExplorer={blockExplorer} />
+        </div>
+      </div>)
+    }
+    return ''
+  }
+
+  return (
+    <Modal
+      title={title()}
+      visible={visible}
+      onCancel={handleOk}
+      destroyOnClose
+      onOk={handleOk}
+      footer={null}
+      closable
+      maskClosable
+    >
+      {renderAddress()}
 
       {isAddressExist() ?
         <div style={{ color: 'red', margin: 8, padding: 8 }}>
@@ -81,11 +136,16 @@ export default function AddOwnerWalletModal({ visible, handleOk, mainnetProvider
       <div style={{ margin: 8, padding: 8, display: 'flex' }}>
         <Button
           style={{ flexGrow: 1 }}
-          disabled={!canAddAddress()}
+          disabled={!confirmAvailable()}
           onClick={() => {
-            addOwnerAddress(newAddress, signaturesRequiredCount());
+            if (mode === modeAdd) {
+              addOwnerAddress(newAddress, signaturesRequiredCount());
+            }
+            if (mode === modeRemove) {
+              removeOwnerAddress(removeAddress, signaturesRequiredCount());
+            }
           }}
-        >Add</Button>
+        >Confirm</Button>
       </div>
     </Modal>
   );
