@@ -2,10 +2,10 @@ import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
 import WalletPreview from "../components/WalletPreview";
 import CreateWalletModal from "../components/CreateWalletModal";
-import { useContractReader } from "../hooks";
 
 export default function Wallets({ readContracts, writeContracts, tx, mainnetProvider, localProvider, blockExplorer, price, walletsAddress }) {
 
+  const multiSigWalletsManagerContractName = 'MultiSigWalletsManager';
   const [isCreateWalletModalVisible, setIsCreateWalletModalVisible] = useState(false);
 
   let walletsAddressWithEmptyAddress = walletsAddress;
@@ -28,9 +28,8 @@ export default function Wallets({ readContracts, writeContracts, tx, mainnetProv
 
   const createWallet = async (wallets, signaturesRequired) => {
     const { chainId } = await mainnetProvider.getNetwork();
-    if(await tx(writeContracts['MultiSigWalletsManager'].createWallet(chainId, wallets, signaturesRequired)))
-    { 
-      setIsCreateWalletModalVisible(false); 
+    if (await tx(writeContracts[multiSigWalletsManagerContractName].createWallet(chainId, wallets, signaturesRequired))) {
+      setIsCreateWalletModalVisible(false);
     }
   };
 
