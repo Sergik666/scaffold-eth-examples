@@ -293,6 +293,7 @@ function App(props) {
               mainnetProvider={mainnetProvider}
               localProvider={localProvider}
               blockExplorer={blockExplorer}
+              tx={tx}
               price={price}
             />
           </Route>

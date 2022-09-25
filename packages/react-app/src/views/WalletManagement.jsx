@@ -5,6 +5,7 @@ import QR from "qrcode.react";
 import axios from "axios";
 import { useExternalContractLoader, useContractReader } from "../hooks";
 import { Address, Balance, AddOwnerWalletModal } from "../components";
+import Transactions from "./Transactions";
 import MetaMultiSigWalletABI from "../contracts/MetaMultiSigWallet.abi";
 import './WalletManagement.css';
 
@@ -15,6 +16,7 @@ export default function WalletManagement({
   localProvider,
   poolServerUrl,
   blockExplorer,
+  tx,
   price,
 }) {
 
@@ -23,17 +25,19 @@ export default function WalletManagement({
 
   const { value: address } = useParams();
 
-  const walletContract = useExternalContractLoader(localProvider, address, MetaMultiSigWalletABI);
+  const walletContract = useExternalContractLoader(userProvider, address, MetaMultiSigWalletABI);
+
+  const signaturesRequired = useContractReader({ MetaMultiSigWallet: walletContract }, "MetaMultiSigWallet", "signaturesRequired", 1000);
+  const nonce = useContractReader({ MetaMultiSigWallet: walletContract }, "MetaMultiSigWallet", "nonce", 1000);
 
   const showAddOwnerModal = () => {
     setIsAddOwnerWalletModalVisible(true);
   };
 
-  const addOwnerAddress = async (newAddress, signaturesRequired) => {
-    const nonce = await walletContract.nonce();
+  const addOwnerAddress = async (newAddress, signaturesRequiredCount) => {
     const to = walletContract.address;
     const value = 0;
-    const callData = walletContract.interface.encodeFunctionData("addSigner",[newAddress, signaturesRequired]);
+    const callData = walletContract.interface.encodeFunctionData("addSigner", [newAddress, signaturesRequiredCount]);
     const hash = await walletContract.getTransactionHash(nonce, to, value, callData);
     const signature = await userProvider.send("personal_sign", [hash, userAddress]);
     const recover = await walletContract.recover(hash, signature);
@@ -88,7 +92,6 @@ export default function WalletManagement({
 
   }, [walletContract]);
 
-  const signaturesRequired = useContractReader({ MetaMultiSigWallet: walletContract }, "MetaMultiSigWallet", "signaturesRequired", 1000);
 
   return (
     <>
@@ -175,6 +178,24 @@ export default function WalletManagement({
             Signatures Required: {signaturesRequired ? signaturesRequired.toNumber() : <Spin />}
           </h2>
 
+        </div>
+
+        <div>
+          <Transactions
+            poolServerUrl={poolServerUrl}
+            contractName="MetaMultiSigWallet"
+            address={userAddress}
+            userProvider={userProvider}
+            mainnetProvider={mainnetProvider}
+            localProvider={localProvider}
+            price={price}
+            tx={tx}
+            writeContracts={walletContract ? { MetaMultiSigWallet: walletContract } : null}
+            readContracts={walletContract ? { MetaMultiSigWallet: walletContract } : null}
+            blockExplorer={blockExplorer}
+            nonce={nonce}
+            signaturesRequired={signaturesRequired}
+          />
         </div>
 
       </div>
