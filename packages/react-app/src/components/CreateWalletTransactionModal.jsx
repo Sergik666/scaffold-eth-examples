@@ -10,20 +10,22 @@ export default function CreateWalletTransactionModal({
   blockExplorer,
   owners,
   signaturesRequired,
-  mode,
-  addOwnerAddress,
-  removeAddress,
-  removeOwnerAddress,
+  modalMethodData,
+  createTransactionCallback,
 }) {
 
-  const modeAdd = 'add';
-  const modeRemove = 'remove';
+  const methodName = modalMethodData ? modalMethodData.methodName : null;
+  const removeOwnerAddress = modalMethodData ? modalMethodData.removeOwnerAddress : null;
+  const amount = modalMethodData ? modalMethodData.amount : null;
+
+  const modeAddSigner = 'addSigner';
+  const modeRemoveSigner = 'removeSigner';
 
   const [newAddress, setNewAddress] = useState();
   const [newSignaturesRequired, setNewSignaturesRequired] = useState();
 
   const isAddressExist = () => {
-    return mode === modeAdd && newAddress && owners && owners.includes(newAddress);
+    return methodName === modeAddSigner && newAddress && owners && owners.includes(newAddress);
   };
 
   const signaturesRequiredCount = () => {
@@ -35,27 +37,26 @@ export default function CreateWalletTransactionModal({
   }
 
   const confirmAvailable = () => {
-    if (mode === modeAdd) {
+    if (methodName === modeAddSigner) {
       return newAddress
         && owners && !owners.includes(newAddress)
         && signaturesRequiredCount() > 0
         && !isSignaturesRequiredCountNotValid();
     }
 
-    if (mode === modeRemove) {
+    if (methodName === modeRemoveSigner) {
       return signaturesRequiredCount() > 0 && !isSignaturesRequiredCountNotValid();
-
     }
 
     return false;
   };
 
   const title = () => {
-    if (mode === modeAdd) {
+    if (methodName === modeAddSigner) {
       return "Add Owner to Wallet";
     }
 
-    if (mode === modeRemove) {
+    if (methodName === modeRemoveSigner) {
       return "Remove Owner from Wallet";
     }
 
@@ -63,7 +64,7 @@ export default function CreateWalletTransactionModal({
   }
 
   const renderAddress = () => {
-    if (mode === modeAdd) {
+    if (methodName === modeAddSigner) {
       return (<div style={{ margin: 8, padding: 8, display: 'flex' }}>
 
         <div style={{ flexGrow: 1 }}>
@@ -81,12 +82,12 @@ export default function CreateWalletTransactionModal({
       </div>)
     }
 
-    if (mode === modeRemove) {
+    if (methodName === modeRemoveSigner) {
       return (<div style={{ margin: 8, padding: 8, display: 'flex' }}>
 
         <div style={{ flexGrow: 1 }}>
           <Address
-            address={removeAddress}
+            address={removeOwnerAddress}
             ensProvider={mainnetProvider}
             blockExplorer={blockExplorer} />
         </div>
@@ -138,12 +139,17 @@ export default function CreateWalletTransactionModal({
           style={{ flexGrow: 1 }}
           disabled={!confirmAvailable()}
           onClick={() => {
-            if (mode === modeAdd) {
-              addOwnerAddress(newAddress, signaturesRequiredCount());
+
+            let args;
+            if (methodName === modeAddSigner) {
+              args = [newAddress, signaturesRequiredCount()];
             }
-            if (mode === modeRemove) {
-              removeOwnerAddress(removeAddress, signaturesRequiredCount());
+
+            if (methodName === modeRemoveSigner) {
+              args = [removeOwnerAddress, signaturesRequiredCount()];
             }
+
+            createTransactionCallback(methodName, args, amount);
           }}
         >Confirm</Button>
       </div>
