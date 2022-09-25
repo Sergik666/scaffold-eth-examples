@@ -63,7 +63,7 @@ const TransactionListItem = function ({item, mainnetProvider, blockExplorer, pri
         </p>
         <p>
           <b>Addressed to :&nbsp;</b>
-          {txnData.args[0]}
+          {txnData.args[0].toString()}
         </p>
       </div>
       {<b style={{ padding: 16 }}>#{typeof(item.nonce)=== "number" ? item.nonce : item.nonce.toNumber()}</b>}
