@@ -20,6 +20,7 @@ export default function CreateWalletTransactionModal({
 
   const modeAddSigner = 'addSigner';
   const modeRemoveSigner = 'removeSigner';
+  const modeUpdateSignaturesRequired = 'updateSignaturesRequired';
 
   const [newAddress, setNewAddress] = useState();
   const [newSignaturesRequired, setNewSignaturesRequired] = useState();
@@ -33,7 +34,15 @@ export default function CreateWalletTransactionModal({
   }
 
   const isSignaturesRequiredCountNotValid = () => {
-    return signaturesRequiredCount() > owners.length + 1;
+    if (methodName === modeAddSigner) {
+      return signaturesRequiredCount() > owners.length + 1;
+    }
+
+    if (methodName === modeRemoveSigner) {
+      return signaturesRequiredCount() > owners.length - 1;
+    }
+
+    return signaturesRequiredCount() > owners.length;
   }
 
   const confirmAvailable = () => {
@@ -48,6 +57,11 @@ export default function CreateWalletTransactionModal({
       return signaturesRequiredCount() > 0 && !isSignaturesRequiredCountNotValid();
     }
 
+    if (methodName === modeUpdateSignaturesRequired) {
+      return signaturesRequiredCount() > 0 && !isSignaturesRequiredCountNotValid()
+        && signaturesRequired !== signaturesRequiredCount();
+    }
+
     return false;
   };
 
@@ -58,6 +72,10 @@ export default function CreateWalletTransactionModal({
 
     if (methodName === modeRemoveSigner) {
       return "Remove Owner from Wallet";
+    }
+
+    if (methodName === modeUpdateSignaturesRequired) {
+      return "Change Signatures Required Count";
     }
 
     return "";
@@ -147,6 +165,10 @@ export default function CreateWalletTransactionModal({
 
             if (methodName === modeRemoveSigner) {
               args = [removeOwnerAddress, signaturesRequiredCount()];
+            }
+
+            if (methodName === modeUpdateSignaturesRequired) {
+              args = [signaturesRequiredCount()];
             }
 
             createTransactionCallback(methodName, args, amount);

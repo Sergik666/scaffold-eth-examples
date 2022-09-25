@@ -51,6 +51,7 @@ export default function WalletManagement({
     const isOwner = await walletContract.isOwner(recover);
     if (isOwner) {
       const res = await axios.post(poolServerUrl, {
+        // eslint-disable-next-line no-underscore-dangle
         chainId: localProvider._network.chainId,
         address: walletContract.address,
         nonce: nonce.toNumber(),
@@ -65,8 +66,8 @@ export default function WalletManagement({
     }
   };
 
-  const createTransactionCallback = async (methodName, newAddress, signaturesRequiredCount) => {
-    await createTransaction(methodName, [newAddress, signaturesRequiredCount], 0);
+  const createTransactionCallback = async (methodName, args, amount) => {
+    await createTransaction(methodName, args, amount);
     hideCreateTransactionModal();
   };
 
@@ -187,9 +188,15 @@ export default function WalletManagement({
             }}
           />
 
-          <h2 className="signatures-required">
+          <Button
+            className="signatures-required"
+            style={{ flexGrow: 1 }}
+            onClick={() => {
+              showCreateTransactionModal('updateSignaturesRequired');
+            }}
+          >
             Signatures Required: {signaturesRequired ? signaturesRequired.toNumber() : <Spin />}
-          </h2>
+          </Button>
 
         </div>
 
