@@ -20,4 +20,4 @@ export { default as ThemeSwitch } from "./ThemeSwitch";
 export { default as WalletPreview } from "./WalletPreview";
 export { default as CreateWalletModal } from "./CreateWalletModal";
 export { default as WalletManagement } from "../views/WalletManagement";
-export { default as AddOwnerWalletModal } from "./AddOwnerWalletModal";
+export { default as CreateWalletTransactionModal } from "./CreateWalletTransactionModal";

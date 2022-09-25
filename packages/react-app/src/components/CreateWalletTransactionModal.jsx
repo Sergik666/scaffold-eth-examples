@@ -3,7 +3,7 @@ import { Button, Modal, Input } from "antd";
 import AddressInput from "./AddressInput";
 import Address from "./Address";
 
-export default function AddOwnerWalletModal({
+export default function CreateWalletTransactionModal({
   visible,
   handleOk,
   mainnetProvider,

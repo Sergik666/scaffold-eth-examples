@@ -4,7 +4,7 @@ import { Spin, List, Button } from "antd";
 import QR from "qrcode.react";
 import axios from "axios";
 import { useExternalContractLoader, useContractReader } from "../hooks";
-import { Address, Balance, AddOwnerWalletModal } from "../components";
+import { Address, Balance, CreateWalletTransactionModal } from "../components";
 import Transactions from "./Transactions";
 import MetaMultiSigWalletABI from "../contracts/MetaMultiSigWallet.abi";
 import './WalletManagement.css';
@@ -113,7 +113,7 @@ export default function WalletManagement({
 
   return (
     <>
-      <AddOwnerWalletModal
+      <CreateWalletTransactionModal
         visible={modalVisibleMode != null}
         handleOk={() => { hideModal(); }}
         mainnetProvider={mainnetProvider}
