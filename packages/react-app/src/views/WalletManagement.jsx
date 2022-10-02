@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from 'react-router-dom';
+import { parseEther } from "@ethersproject/units";
 import { Spin, List, Button } from "antd";
 import QR from "qrcode.react";
 import axios from "axios";
@@ -42,10 +43,10 @@ export default function WalletManagement({
     setCreateTransactionModalMethodData(null);
   };
 
-  const createTransaction = async (methodName, args, amount) => {
-    const to = walletContract.address;
-    const callData = walletContract.interface.encodeFunctionData(methodName, args);
-    const hash = await walletContract.getTransactionHash(nonce, to, amount, callData);
+  const createTransaction = async (methodName, args, amount, toAddress) => {
+    const to = toAddress != null ? toAddress : walletContract.address;
+    const callData = methodName === "transfer" ? "0x00" : walletContract.interface.encodeFunctionData(methodName, args);
+    const hash = await walletContract.getTransactionHash(nonce, to, parseEther("" + parseFloat(amount).toFixed(12)), callData);
     const signature = await userProvider.send("personal_sign", [hash, userAddress]);
     const recover = await walletContract.recover(hash, signature);
     const isOwner = await walletContract.isOwner(recover);
@@ -66,8 +67,8 @@ export default function WalletManagement({
     }
   };
 
-  const createTransactionCallback = async (methodName, args, amount) => {
-    await createTransaction(methodName, args, amount);
+  const createTransactionCallback = async (methodName, args, amount, toAddress) => {
+    await createTransaction(methodName, args, amount, toAddress);
     hideCreateTransactionModal();
   };
 
@@ -112,6 +113,7 @@ export default function WalletManagement({
         handleOk={() => { hideCreateTransactionModal(); }}
         mainnetProvider={mainnetProvider}
         blockExplorer={blockExplorer}
+        price={price}
         signaturesRequired={signaturesRequired}
         owners={owners}
         modalMethodData={modalCreateTransactionMethodData}
@@ -146,6 +148,15 @@ export default function WalletManagement({
               fontSize={32}
             />
           </div>
+          <Button
+            className="transfer-amount"
+            style={{ flexGrow: 1 }}
+            onClick={() => {
+              showCreateTransactionModal('transfer');
+            }}
+          >
+            Transfer Amount
+          </Button>
 
         </div>
 

@@ -2,12 +2,14 @@ import React, { useState } from "react";
 import { Button, Modal, Input } from "antd";
 import AddressInput from "./AddressInput";
 import Address from "./Address";
+import EtherInput from "./EtherInput";
 
 export default function CreateWalletTransactionModal({
   visible,
   handleOk,
   mainnetProvider,
   blockExplorer,
+  price,
   owners,
   signaturesRequired,
   modalMethodData,
@@ -21,9 +23,11 @@ export default function CreateWalletTransactionModal({
   const modeAddSigner = 'addSigner';
   const modeRemoveSigner = 'removeSigner';
   const modeUpdateSignaturesRequired = 'updateSignaturesRequired';
+  const modeTransfer = 'transfer';
 
   const [newAddress, setNewAddress] = useState();
   const [newSignaturesRequired, setNewSignaturesRequired] = useState();
+  const [transferAmount, setTransferAmount] = useState();
 
   const isAddressExist = () => {
     return methodName === modeAddSigner && newAddress && owners && owners.includes(newAddress);
@@ -62,6 +66,10 @@ export default function CreateWalletTransactionModal({
         && signaturesRequired !== signaturesRequiredCount();
     }
 
+    if (methodName === modeTransfer) {
+      return transferAmount && transferAmount > 0;
+    }
+
     return false;
   };
 
@@ -78,26 +86,39 @@ export default function CreateWalletTransactionModal({
       return "Change Signatures Required Count";
     }
 
+    if (methodName === modeTransfer) {
+      return "Transfer Amount";
+    }
+
     return "";
   }
 
   const renderAddress = () => {
     if (methodName === modeAddSigner) {
-      return (<div style={{ margin: 8, padding: 8, display: 'flex' }}>
+      return (<>
+        <div style={{ margin: 8, padding: 8, display: 'flex' }}>
 
-        <div style={{ flexGrow: 1 }}>
-          <AddressInput
-            autoFocus
-            ensProvider={mainnetProvider}
-            placeholder="new owner address"
-            style={{ flexGrow: 1 }}
-            onChange={(address) => {
-              setNewAddress(address);
-            }}
-          />
+          <div style={{ flexGrow: 1 }}>
+            <AddressInput
+              autoFocus
+              ensProvider={mainnetProvider}
+              placeholder="new owner address"
+              style={{ flexGrow: 1 }}
+              onChange={(address) => {
+                setNewAddress(address);
+              }}
+            />
 
+          </div>
         </div>
-      </div>)
+
+        {isAddressExist() ?
+          <div style={{ color: 'red', margin: 8, padding: 8 }}>
+            Address already exist in owners
+          </div>
+          : ''
+        }
+      </>);
     }
 
     if (methodName === modeRemoveSigner) {
@@ -109,9 +130,88 @@ export default function CreateWalletTransactionModal({
             ensProvider={mainnetProvider}
             blockExplorer={blockExplorer} />
         </div>
-      </div>)
+      </div>);
     }
-    return ''
+
+    if (methodName === modeTransfer) {
+      return (<div style={{ margin: 8, padding: 8, display: 'flex' }}>
+
+      <div style={{ flexGrow: 1 }}>
+        <AddressInput
+          autoFocus
+          ensProvider={mainnetProvider}
+          placeholder="to address"
+          style={{ flexGrow: 1 }}
+          onChange={(address) => {
+            setNewAddress(address);
+          }}
+        />
+
+      </div>
+    </div>);
+    }
+    return '';
+  }
+
+  const renderSignaturesRequired = () => {
+    if (methodName === modeAddSigner || methodName === modeRemoveSigner || methodName === modeUpdateSignaturesRequired) {
+      return (<>
+        {isSignaturesRequiredCountNotValid() ?
+          <div style={{ color: 'red', margin: 8, padding: 8 }}>
+            Signatures required greater owners count
+          </div>
+          : ''
+        }
+
+        <div style={{ margin: 8, padding: 8 }}>
+          Count of signatures required:
+        </div>
+        <div style={{ margin: 8, padding: 8 }}>
+          <Input
+            ensProvider={mainnetProvider}
+            placeholder="signatures"
+            value={signaturesRequiredCount()}
+            onChange={(e) => { setNewSignaturesRequired(e.target.value) }}
+          />
+        </div>
+      </>);
+    }
+    return '';
+  }
+
+  const renderAmount = () => {
+    if (methodName === modeTransfer) {
+      return (<>
+        <div style={{ margin: 8, padding: 8 }}>
+          <EtherInput price={price} mode="USD" value={transferAmount} onChange={setTransferAmount} />
+        </div>
+      </>);
+    }
+    return '';
+  }
+
+  const confirm = () => {
+    let args;
+    let transactionTransferAmount = amount;
+    let toAddress;
+    if (methodName === modeAddSigner) {
+      args = [newAddress, signaturesRequiredCount()];
+    }
+
+    if (methodName === modeRemoveSigner) {
+      args = [removeOwnerAddress, signaturesRequiredCount()];
+    }
+
+    if (methodName === modeUpdateSignaturesRequired) {
+      args = [signaturesRequiredCount()];
+    }
+
+    if (methodName === modeTransfer) {
+      transactionTransferAmount = transferAmount;
+      toAddress = newAddress;
+    }
+
+    createTransactionCallback(methodName, args, transactionTransferAmount, toAddress);
   }
 
   return (
@@ -127,51 +227,16 @@ export default function CreateWalletTransactionModal({
     >
       {renderAddress()}
 
-      {isAddressExist() ?
-        <div style={{ color: 'red', margin: 8, padding: 8 }}>
-          Address already exist in owners
-        </div>
-        : ''
-      }
+      {renderSignaturesRequired()}
 
-      {isSignaturesRequiredCountNotValid() ?
-        <div style={{ color: 'red', margin: 8, padding: 8 }}>
-          Signatures required greater owners count
-        </div>
-        : ''
-      }
+      {renderAmount()}
 
-      <div style={{ margin: 8, padding: 8 }}>
-        Count of signatures required:
-      </div>
-      <div style={{ margin: 8, padding: 8 }}>
-        <Input
-          ensProvider={mainnetProvider}
-          placeholder="signatures"
-          value={signaturesRequiredCount()}
-          onChange={(e) => { setNewSignaturesRequired(e.target.value) }}
-        />
-      </div>
       <div style={{ margin: 8, padding: 8, display: 'flex' }}>
         <Button
           style={{ flexGrow: 1 }}
           disabled={!confirmAvailable()}
           onClick={() => {
-
-            let args;
-            if (methodName === modeAddSigner) {
-              args = [newAddress, signaturesRequiredCount()];
-            }
-
-            if (methodName === modeRemoveSigner) {
-              args = [removeOwnerAddress, signaturesRequiredCount()];
-            }
-
-            if (methodName === modeUpdateSignaturesRequired) {
-              args = [signaturesRequiredCount()];
-            }
-
-            createTransactionCallback(methodName, args, amount);
+            confirm();
           }}
         >Confirm</Button>
       </div>
