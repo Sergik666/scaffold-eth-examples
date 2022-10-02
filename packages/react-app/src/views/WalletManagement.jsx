@@ -121,6 +121,7 @@ export default function WalletManagement({
       />
       <div className="wallet-management">
         <div className="wallet-information">
+          <h2 className="owners">Wallet</h2>
           <div>
             <Address
               address={address}
@@ -162,10 +163,10 @@ export default function WalletManagement({
 
         <div className="wallet-owners">
 
-          <h2 className="owners">Owners:</h2>
+          <h2 className="owners">Owners</h2>
 
           <List
-            style={{ maxWidth: 400, margin: "auto" }}
+            style={{ maxWidth: 550, marginLeft: 20 }}
             bordered
             dataSource={[...owners, '']}
             renderItem={(item) => {
@@ -211,7 +212,7 @@ export default function WalletManagement({
 
         </div>
 
-        <div>
+        <div className="wallet-transaction">
           <Transactions
             poolServerUrl={poolServerUrl}
             contractName="MetaMultiSigWallet"

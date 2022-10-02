@@ -1,0 +1,22 @@
+.wallet-management {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding-top: 30px;
+}
+
+.wallet-information {
+    width: 180px;  
+}
+
+.wallet-owners {
+  width: 570px;
+}
+
+.wallet-transaction {
+  width: 100%;
+}
+
+.signatures-required {
+  margin-top: 10px;
+}
