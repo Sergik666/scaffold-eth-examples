@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "base64-sol/base64.sol";
 
-import './HexStrings.sol';
+import "./HexStrings.sol";
 
 // import "./StringConverter.sol";
 
@@ -14,7 +14,6 @@ import './HexStrings.sol';
 // import "./SVGBaseGenerator.sol";
 // import "./SVGBuildingGenerator.sol";
 import "./SVGGenerator.sol";
-
 
 contract ElectroCityNFT is ERC721, Ownable {
     using Strings for uint256;
@@ -26,11 +25,15 @@ contract ElectroCityNFT is ERC721, Ownable {
 
     mapping(uint256 => TokenData) public tokenData;
 
-    bool public lightIsOn = false;
+    bool public lightIsOn = true;
 
     address[] private _lightOperators;
 
-    constructor() public ERC721("ElectroCityNFT", "ECN") {}
+    event LightSwitched(bool isOn);
+
+    constructor() public ERC721("ElectroCityNFT", "ECN") {
+        _lightOperators.push(msg.sender);
+    }
 
     function mint() public payable {
         require(totalSupply() < 1000, "Maximum token supply reached");
@@ -38,9 +41,9 @@ contract ElectroCityNFT is ERC721, Ownable {
 
         uint256 tokenId = totalSupply() + 1;
 
-        bytes8 seed = bytes8 (keccak256(
-            abi.encodePacked(block.timestamp, msg.sender, tokenId)
-        ));
+        bytes8 seed = bytes8(
+            keccak256(abi.encodePacked(block.timestamp, msg.sender, tokenId))
+        );
 
         tokenData[tokenId] = TokenData(seed);
 
@@ -57,7 +60,10 @@ contract ElectroCityNFT is ERC721, Ownable {
     // }
 
     function changeLightIsOn(bool _lightIsOn) public onlyLightOperators {
-        lightIsOn = _lightIsOn;
+        if (lightIsOn != _lightIsOn) {
+            lightIsOn = _lightIsOn;
+            emit LightSwitched(_lightIsOn);
+        }
     }
 
     function addLightOperator(address operator) public onlyOwner {
@@ -102,11 +108,21 @@ contract ElectroCityNFT is ERC721, Ownable {
         );
         bytes8 seed = tokenData[id].seed;
         uint8 firstByte = uint8(bytes1(seed));
-        bool isDay =  ((firstByte & 0x80) == 0x80);
+        bool isDay = ((firstByte & 0x80) == 0x80);
         uint dayBit = (firstByte >> 7) & 1;
 
-        string memory description = string(abi.encodePacked('This ElectroCityNFT seed:',uint2str(uint64(seed)),', day byte: ',uint2str(dayBit),'!!!'));
-        string memory image = Base64.encode(bytes(SVGGenerator.generateSVGofTokenBySeed(seed)));
+        string memory description = string(
+            abi.encodePacked(
+                "This ElectroCityNFT seed:",
+                uint2str(uint64(seed)),
+                ", day byte: ",
+                uint2str(dayBit),
+                "!!!"
+            )
+        );
+        string memory image = Base64.encode(
+            bytes(SVGGenerator.generateSVGofTokenBySeed(seed, !lightIsOn))
+        );
 
         return
             string(
@@ -122,7 +138,7 @@ contract ElectroCityNFT is ERC721, Ownable {
                                 //   '", "external_url":"https://burnyboys.com/token/',
                                 //   id.toString(),
                                 '", "attributes": [{"trait_type": "day", "value": ',
-                                isDay? 'true': 'false',
+                                isDay ? "true" : "false",
                                 //   '"},{"trait_type": "chubbiness", "value": ',
                                 //   uint2str(chubbiness[id]),
                                 '}], "owner":"',
@@ -138,27 +154,29 @@ contract ElectroCityNFT is ERC721, Ownable {
             );
     }
 
-    function uint2str(uint _i) internal pure returns (string memory _uintAsString) {
-      if (_i == 0) {
-          return "0";
-      }
-      uint j = _i;
-      uint len;
-      while (j != 0) {
-          len++;
-          j /= 10;
-      }
-      bytes memory bstr = new bytes(len);
-      uint k = len;
-      while (_i != 0) {
-          k = k-1;
-          uint8 temp = (48 + uint8(_i - _i / 10 * 10));
-          bytes1 b1 = bytes1(temp);
-          bstr[k] = b1;
-          _i /= 10;
-      }
-      return string(bstr);
-  }
+    function uint2str(
+        uint _i
+    ) internal pure returns (string memory _uintAsString) {
+        if (_i == 0) {
+            return "0";
+        }
+        uint j = _i;
+        uint len;
+        while (j != 0) {
+            len++;
+            j /= 10;
+        }
+        bytes memory bstr = new bytes(len);
+        uint k = len;
+        while (_i != 0) {
+            k = k - 1;
+            uint8 temp = (48 + uint8(_i - (_i / 10) * 10));
+            bytes1 b1 = bytes1(temp);
+            bstr[k] = b1;
+            _i /= 10;
+        }
+        return string(bstr);
+    }
 
     // function generateSVGofTokenById(
     //     uint256 id

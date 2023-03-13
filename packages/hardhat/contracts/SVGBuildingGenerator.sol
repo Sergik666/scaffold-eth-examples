@@ -23,12 +23,12 @@ library SVGBuildingGenerator {
     }
 
     function renderBuildings(
-        bytes8 seed
+        bytes8 seed,
+        bool lightOff
     ) internal pure returns (string memory) {
         string memory buildings = "";
         uint8 buildingXPosition = Seed.getUint8InRangeBySeed(seed, 0, 20);
         for (uint32 i = 0; i < 4; i++) {
-
             bytes8 buildingSeed = bytes8(uint64(seed) + buildingXPosition + i);
 
             BuildingConfiguration
@@ -39,7 +39,10 @@ library SVGBuildingGenerator {
                 );
 
             buildings = string(
-                abi.encodePacked(buildings, renderBuilding(seed, building))
+                abi.encodePacked(
+                    buildings,
+                    renderBuilding(seed, building, lightOff)
+                )
             );
 
             buildingXPosition =
@@ -145,7 +148,8 @@ library SVGBuildingGenerator {
 
     function renderBuilding(
         bytes8 seed,
-        BuildingConfiguration memory building
+        BuildingConfiguration memory building,
+        bool lightOff
     ) internal pure returns (string memory) {
         return
             string(
@@ -154,7 +158,7 @@ library SVGBuildingGenerator {
                     renderBuildingAttics(seed, building),
                     building.showRoof ? renderBuildingRoof(building) : "",
                     renderBuildingWall(building),
-                    renderBuildingWindows(seed, building),
+                    renderBuildingWindows(seed, building, lightOff),
                     "</g>"
                 )
             );
@@ -224,7 +228,8 @@ library SVGBuildingGenerator {
 
     function renderBuildingWindows(
         bytes8 seed,
-        BuildingConfiguration memory building
+        BuildingConfiguration memory building,
+        bool lightOff
     ) internal pure returns (string memory) {
         string memory windows = "";
         for (uint8 i = 0; i < building.windowColumnsCount; i++) {
@@ -247,7 +252,9 @@ library SVGBuildingGenerator {
                         uint64(i + building.windowHeight * 2) *
                         uint64(j + building.windowWidth * 2)
                 );
-                string memory color = getBuildingWindowColor(windowSeed);
+                string memory color = lightOff
+                    ? "#6e6e6e"
+                    : getBuildingWindowColor(windowSeed);
                 windows = string(
                     abi.encodePacked(
                         windows,

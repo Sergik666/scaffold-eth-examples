@@ -11,7 +11,8 @@ import "./SVGBuildingGenerator.sol";
 
 library SVGGenerator {
     function generateSVGofTokenBySeed(
-        bytes8 seed
+        bytes8 seed,
+        bool lightOff
     ) internal view returns (string memory) {
         uint8 firstByte = uint8(bytes1(seed));
         bool isDay = ((firstByte & 0x80) == 0x80);
@@ -29,7 +30,7 @@ library SVGGenerator {
                 isDay ? renderSun() : renderMoon(),
                 renderBackBuildingsObjects(seed),
                 isShowClouds ? renderClouds() : "",
-                SVGBuildingGenerator.renderBuildings(seed),
+                SVGBuildingGenerator.renderBuildings(seed, lightOff),
                 renderRoad(),
                 "</g>",
                 "</svg>"
