@@ -1,1 +1,1 @@
-module.exports = ["ElectroCityNFT","YourCollectible"];
+module.exports = ["ElectroCityNFT"];

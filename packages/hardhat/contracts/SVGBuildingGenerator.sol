@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.6.0 <0.7.0;
+pragma solidity ^0.8.0;
 
-import "./StringConverter.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 import "./Seed.sol";
 
 library SVGBuildingGenerator {
     struct BuildingConfiguration {
-        uint x;
-        uint y;
+        int x;
+        int y;
         uint buildingWidth;
         uint buildingHeight;
         uint buildingWithSize;
@@ -27,13 +27,13 @@ library SVGBuildingGenerator {
         bool lightOff
     ) internal pure returns (string memory) {
         string memory buildings = "";
-        uint8 buildingXPosition = Seed.getUint8InRangeBySeed(seed, 0, 20);
-        for (uint32 i = 0; i < 4; i++) {
-            bytes8 buildingSeed = bytes8(uint64(seed) + buildingXPosition + i);
+        int buildingXPosition = Seed.getIntInRangeBySeed(seed, -10, 10);
+        for (uint32 i = 0; i < 7; i++) {
+            bytes8 buildingSeed = Seed.seedPlusInt(seed, buildingXPosition);
 
             BuildingConfiguration
                 memory building = getBuildingConfigurationBySeed(
-                    bytes8(uint64(buildingSeed)),
+                    buildingSeed,
                     buildingXPosition,
                     170
                 );
@@ -41,23 +41,23 @@ library SVGBuildingGenerator {
             buildings = string(
                 abi.encodePacked(
                     buildings,
-                    renderBuilding(seed, building, lightOff)
+                    renderBuilding(buildingSeed, building, lightOff)
                 )
             );
 
             buildingXPosition =
                 buildingXPosition +
-                uint8(building.buildingWithSize) +
+                int(building.buildingWithSize) +
                 3;
 
-            buildings = string(
-                abi.encodePacked(
-                    buildings,
-                    "<!-- buildingXPosition:",
-                    StringConverter.uint2str(buildingXPosition),
-                    "-->"
-                )
-            );
+            // buildings = string(
+            //     abi.encodePacked(
+            //         buildings,
+            //         "<!-- buildingXPosition:",
+            //         Strings.toString(buildingXPosition),
+            //         "-->"
+            //     )
+            // );
 
             if (buildingXPosition > 200) {
                 break;
@@ -69,54 +69,67 @@ library SVGBuildingGenerator {
 
     function getBuildingConfigurationBySeed(
         bytes8 buildingSeed,
-        uint8 x,
-        uint8 y
+        int x,
+        int y
     ) internal pure returns (BuildingConfiguration memory) {
         uint8 windowOffset = 3;
 
-        uint8 buildingWallSize = Seed.getUint8InRangeBySeed(buildingSeed, 3, 5);
+        uint buildingWallSize = Seed.getUintInRangeBySeed(buildingSeed, 3, 5);
 
         string memory buildingWallColor = getBuildingWallColor(buildingSeed);
 
         uint8 windowColumnsCount = Seed.getUint8InRangeBySeed(
             buildingSeed,
-            3,
-            5
+            1,
+            7
         );
-        uint8 windowRowsCount = Seed.getUint8InRangeBySeed(buildingSeed, 1, 7);
+        uint8 windowRowsCount = Seed.getUint8InRangeBySeed(
+            Seed.seedPlusUint(buildingSeed, windowColumnsCount),
+            1,
+            8
+        );
 
         uint8 windowWidth = Seed.getUint8InRangeBySeed(buildingSeed, 5, 7);
         uint8 windowHeight = Seed.getUint8InRangeBySeed(
-            bytes8(uint64(buildingSeed) + y),
+            Seed.seedPlusInt(buildingSeed, y),
             windowWidth,
             windowWidth + 2
         );
 
         bool showAttics = Seed.getUint8InRangeBySeed(buildingSeed, 0, 10) > 5;
-        bool showRoof = Seed.getUintInRangeBySeed(
-            bytes8(uint64(windowColumnsCount * windowRowsCount)),
-            0,
-            10
-        ) > 4;
+        bool showRoof = false;
+        if (windowColumnsCount > 2 && windowRowsCount > 2) {
+            showRoof =
+                Seed.getUintInRangeBySeed(
+                    Seed.fromUint(windowColumnsCount * windowRowsCount),
+                    0,
+                    10
+                ) >
+                4;
+        }
 
-        uint8 buildingWithSize = getBuildingSize(
+        uint buildingWithSize = getBuildingSize(
             buildingWallSize,
             windowWidth,
             windowColumnsCount,
             showRoof
         );
 
-        uint8 buildingWidth = buildingWallSize *
+        uint buildingWidth = buildingWallSize *
             2 +
             ((windowColumnsCount - 1) * (windowOffset + windowWidth)) +
             windowWidth;
-        uint8 buildingHeight = buildingWallSize +
+
+        uint buildingHeight = buildingWallSize +
             windowRowsCount *
             (windowOffset + windowHeight);
 
         BuildingConfiguration memory building;
         building.x = x;
-        building.y = y - buildingHeight;
+        if (showRoof) {
+            building.x += int(buildingWallSize);
+        }
+        building.y = y - int(buildingHeight);
         building.buildingWidth = buildingWidth;
         building.buildingHeight = buildingHeight;
         building.buildingWithSize = buildingWithSize;
@@ -134,11 +147,11 @@ library SVGBuildingGenerator {
     }
 
     function getBuildingSize(
-        uint8 buildingWallSize,
+        uint buildingWallSize,
         uint8 windowWidth,
         uint8 windowColumnsCount,
         bool showRoof
-    ) internal pure returns (uint8) {
+    ) internal pure returns (uint) {
         return
             (buildingWallSize * (showRoof ? 2 : 0)) +
             (buildingWallSize * 2) +
@@ -170,16 +183,16 @@ library SVGBuildingGenerator {
     ) internal pure returns (string memory) {
         string memory attics = "";
         for (uint8 i = 0; i < building.windowColumnsCount; i++) {
-            if (Seed.getUintBySeed(bytes8(uint64(seed) + i), 10) <= 6) {
+            if (Seed.getUintBySeed(Seed.seedPlusUint(seed, i), 10) <= 6) {
                 continue;
             }
 
-            uint8 windowX = uint8(
-                building.x +
+            int windowX = building.x +
+                int(
                     building.buildingWallSize +
-                    i *
-                    (building.windowOffset + building.windowWidth)
-            );
+                        i *
+                        (building.windowOffset + building.windowWidth)
+                );
 
             attics = string(
                 abi.encodePacked(
@@ -187,8 +200,14 @@ library SVGBuildingGenerator {
                     getSVGRect(
                         windowX,
                         building.y -
-                            building.buildingWallSize -
-                            (building.showRoof ? building.buildingWallSize : 0),
+                            int(
+                                building.buildingWallSize -
+                                    (
+                                        building.showRoof
+                                            ? building.buildingWallSize
+                                            : 0
+                                    )
+                            ),
                         building.windowWidth,
                         building.buildingWallSize,
                         building.buildingWallColor
@@ -205,8 +224,8 @@ library SVGBuildingGenerator {
     ) internal pure returns (string memory) {
         return
             getSVGRect(
-                building.x - building.buildingWallSize,
-                building.y - building.buildingWallSize,
+                building.x - int(building.buildingWallSize),
+                building.y - int(building.buildingWallSize),
                 building.buildingWidth + building.buildingWallSize * 2,
                 building.buildingWallSize,
                 "#47474e"
@@ -233,25 +252,24 @@ library SVGBuildingGenerator {
     ) internal pure returns (string memory) {
         string memory windows = "";
         for (uint8 i = 0; i < building.windowColumnsCount; i++) {
-            uint8 windowX = uint8(
-                building.x +
+            int windowX = building.x +
+                int(
                     building.buildingWallSize +
-                    i *
-                    (building.windowOffset + building.windowWidth)
-            );
+                        i *
+                        (building.windowOffset + building.windowWidth)
+                );
 
-            for (uint8 j = 0; j < building.windowRowsCount; j++) {
-                uint8 windowY = uint8(
-                    building.y +
+            for (uint j = 0; j < building.windowRowsCount; j++) {
+                int windowY = building.y +
+                    int(
                         building.buildingWallSize +
-                        j *
-                        (building.windowOffset + building.windowHeight)
-                );
-                bytes8 windowSeed = bytes8(
-                    uint64(seed) *
-                        uint64(i + building.windowHeight * 2) *
-                        uint64(j + building.windowWidth * 2)
-                );
+                            j *
+                            (building.windowOffset + building.windowHeight)
+                    );
+                uint windowSeed = (uint256(bytes32(seed)) % 27) +
+                    ((i + 1) * 4 * building.windowHeight) +
+                    ((j + 1) * 9 * building.windowWidth);
+
                 string memory color = lightOff
                     ? "#6e6e6e"
                     : getBuildingWindowColor(windowSeed);
@@ -274,8 +292,8 @@ library SVGBuildingGenerator {
     }
 
     function getSVGRect(
-        uint x,
-        uint y,
+        int x,
+        int y,
         uint width,
         uint height,
         string memory fill
@@ -283,19 +301,28 @@ library SVGBuildingGenerator {
         string memory svg = string(
             abi.encodePacked(
                 '<rect x="',
-                StringConverter.uint2str(x),
+                int2str(x),
                 '" y="',
-                StringConverter.uint2str(y),
+                int2str(y),
                 '" width="',
-                StringConverter.uint2str(width),
+                Strings.toString(width),
                 '" height="',
-                StringConverter.uint2str(height),
+                Strings.toString(height),
                 '" fill="',
                 fill,
                 '" />'
             )
         );
         return svg;
+    }
+
+    function int2str(
+        int _i
+    ) internal pure returns (string memory _intAsString) {
+        if (_i < 0)
+            return
+                string(abi.encodePacked("-", Strings.toString(uint(_i * -1))));
+        return Strings.toString(uint(_i));
     }
 
     function getBuildingWallColor(
@@ -315,7 +342,7 @@ library SVGBuildingGenerator {
     }
 
     function getBuildingWindowColor(
-        bytes8 seed
+        uint seed
     ) public pure returns (string memory) {
         uint remainder = uint64(seed) % 100;
 

@@ -1,13 +1,14 @@
-const { utils } = require("ethers");
+const { isAddress, getAddress, formatUnits, parseUnits } = require("ethers");
 const fs = require("fs");
 const chalk = require("chalk");
 
 require("@nomiclabs/hardhat-waffle");
-require("@tenderly/hardhat-tenderly")
-
+// require("@tenderly/hardhat-tenderly")
 require("@nomiclabs/hardhat-etherscan");
 
-const { isAddress, getAddress, formatUnits, parseUnits } = utils;
+// const tdly = require("@tenderly/hardhat-tenderly");
+// tdly.setup();
+
 
 /*
       📡 This is where you configure your deploy configuration for 🏗 scaffold-eth
@@ -96,9 +97,37 @@ module.exports = {
         mnemonic: mnemonic(),
       },
     },
+    mumbai: {
+      url: 'https://rpc-mumbai.maticvigil.com/',
+      // url: `https://polygon-mumbai.infura.io/v3/xxxxxxx`,
+      // url: "https://matic-mumbai.chainstacklabs.com",
+      // gasPrice: 110000000000,
+      // gasPrice: 8000000000, // default is 'auto' which breaks chains without the london hardfork
+      accounts: {
+        mnemonic: mnemonic(),
+      },
+    },
   },
   solidity: {
     compilers: [
+      {
+        version: "0.8.4",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 200
+          }
+        }
+      },
+      {
+        version: "0.8.0",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 200
+          }
+        }
+      },
       {
         version: "0.7.6",
         settings: {

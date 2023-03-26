@@ -71,13 +71,11 @@ const main = async () => {
   */
 
   // If you want to verify your contract on etherscan
-  /*
   console.log(chalk.blue('verifying on etherscan'))
   await run("verify:verify", {
-    address: yourContract.address,
+    address: electroCityNFT.address,
     // constructorArguments: args // If your contract has constructor arguments, you can pass them as an array
   })
-  */
 
   console.log(
     " 💾  Artifacts (address, abi, and args) saved to: ",
@@ -112,10 +110,10 @@ const deploy = async (contractName, _args = [], overrides = {}, libraries = {}) 
     chalk.grey(extraGasInfo)
   );
 
-  await tenderly.persistArtifacts({
-    name: contractName,
-    address: deployed.address
-  });
+  // await tenderly.persistArtifacts({
+  //   name: contractName,
+  //   address: deployed.address
+  // });
 
   if (!encoded || encoded.length <= 2) return deployed;
   fs.writeFileSync(`artifacts/${contractName}.args`, encoded.slice(2));

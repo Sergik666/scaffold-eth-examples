@@ -178,65 +178,16 @@ function App(props) {
     "0x34aA3F359A9D614239015126635CE7732c18fDF3",
   ]); */
 
-  // keep track of a variable from the contract in the local React state:
-  const balance = useContractReader(readContracts, "YourCollectible", "balanceOf", [address]);
-  console.log("🤗 balance:", balance);
-
-  // 📟 Listen for broadcast events
-  const transferEvents = useEventListener(readContracts, "YourCollectible", "Transfer", localProvider, 1);
-  console.log("📟 Transfer events:", transferEvents);
-
-  //
-  // 🧠 This effect will update yourCollectibles by polling when your balance changes
-  //
-  const yourBalance = balance && balance.toNumber && balance.toNumber();
-  const [yourCollectibles, setYourCollectibles] = useState();
-
-  useEffect(() => {
-    const updateYourCollectibles = async () => {
-      const collectibleUpdate = [];
-      for (let tokenIndex = 0; tokenIndex < balance; tokenIndex++) {
-        try {
-          console.log("GEtting token index", tokenIndex);
-          const tokenId = await readContracts.YourCollectible.tokenOfOwnerByIndex(address, tokenIndex);
-          console.log("tokenId", tokenId);
-          const tokenURI = await readContracts.YourCollectible.tokenURI(tokenId);
-          const jsonManifestString = atob(tokenURI.substring(29));
-          console.log("jsonManifestString", jsonManifestString);
-          /*
-          const ipfsHash = tokenURI.replace("https://ipfs.io/ipfs/", "");
-          console.log("ipfsHash", ipfsHash);
-
-          const jsonManifestBuffer = await getFromIPFS(ipfsHash);
-
-        */
-          try {
-            const jsonManifest = JSON.parse(jsonManifestString);
-            console.log("jsonManifest", jsonManifest);
-            collectibleUpdate.push({ id: tokenId, uri: tokenURI, owner: address, ...jsonManifest });
-          } catch (e) {
-            console.log(e);
-          }
-        } catch (e) {
-          console.log(e);
-        }
-      }
-      setYourCollectibles(collectibleUpdate.reverse());
-    };
-    updateYourCollectibles();
-  }, [address, yourBalance]);
-
+ 
   // keep track of a variable from the contract in the local React state:
   const electroCityNFTBalance = useContractReader(readContracts, "ElectroCityNFT", "balanceOf", [address]);
   console.log("🤗 balance:", electroCityNFTBalance);
 
   // // 📟 Listen for broadcast events
-  // const electroCityNFTTransferEvents = useEventListener(readContracts, "YourCollElectroCityNFTectible", "Transfer", localProvider, 1);
+  const electroCityNFTLightSwitchedEvent = useEventListener(readContracts, "ElectroCityNFT", "LightSwitched", localProvider, 1);
+  // const electroCityNFTTransferEvents = useEventListener(readContracts, "ElectroCityNFT", "Transfer", localProvider, 1);
   // console.log("📟 ElectroCityNFT Transfer events:", ElectroCityNFTTransferEvents);
 
-  //
-  // 🧠 This effect will update yourCollectibles by polling when your balance changes
-  //
   const yourElectroCityNFTBalance = electroCityNFTBalance && electroCityNFTBalance.toNumber && electroCityNFTBalance.toNumber();
   const [yourElectroCityNFTs, setYourElectroCityNFTs] = useState();
 
@@ -272,7 +223,7 @@ function App(props) {
       setYourElectroCityNFTs(collectibleUpdate.reverse());
     };
     updateYourElectroCityNFTs();
-  }, [address, yourElectroCityNFTBalance]);
+  }, [address, yourElectroCityNFTBalance, electroCityNFTLightSwitchedEvent]);
 
   /*
   const addressFromENS = useResolveName(mainnetProvider, "austingriffith.eth");
@@ -407,26 +358,6 @@ function App(props) {
   const [transferToAddresses, setTransferToAddresses] = useState({});
 
   const [loadedAssets, setLoadedAssets] = useState();
-  /* useEffect(() => {
-    const updateYourCollectibles = async () => {
-      const assetUpdate = [];
-      for (const a in assets) {
-        try {
-          const forSale = await readContracts.YourCollectible.forSale(utils.id(a));
-          let owner;
-          if (!forSale) {
-            const tokenId = await readContracts.YourCollectible.uriToTokenId(utils.id(a));
-            owner = await readContracts.YourCollectible.ownerOf(tokenId);
-          }
-          assetUpdate.push({ id: a, ...assets[a], forSale, owner });
-        } catch (e) {
-          console.log(e);
-        }
-      }
-      setLoadedAssets(assetUpdate);
-    };
-    if (readContracts && readContracts.YourCollectible) updateYourCollectibles();
-  }, [assets, readContracts, transferEvents]); */
 
   const galleryList = [];
 
@@ -445,17 +376,7 @@ function App(props) {
               }}
               to="/"
             >
-              Your Loogies
-            </Link>
-          </Menu.Item>
-          <Menu.Item key="/ElectroCityNFT">
-            <Link
-              onClick={() => {
-                setRoute("/ElectroCityNFT");
-              }}
-              to="/ElectroCityNFT"
-            >
-              ElectroCityNFT
+              Your ElectroCity NFT
             </Link>
           </Menu.Item>
           <Menu.Item key="/debug">
@@ -468,120 +389,10 @@ function App(props) {
               Smart Contract
             </Link>
           </Menu.Item>
-          <Menu.Item key="/debug2">
-            <Link
-              onClick={() => {
-                setRoute("/debug2");
-              }}
-              to="/debug2"
-            >
-              Debug ElectroCityNFT
-            </Link>
-          </Menu.Item>
         </Menu>
 
         <Switch>
           <Route exact path="/">
-            {/*
-                🎛 this scaffolding is full of commonly used components
-                this <Contract/> component will automatically parse your ABI
-                and give you a form to interact with it locally
-            */}
-
-            <div style={{ maxWidth: 820, margin: "auto", marginTop: 32, paddingBottom: 32 }}>
-              {isSigner ? (
-                <Button
-                  type="primary"
-                  onClick={() => {
-                    tx(writeContracts.YourCollectible.mintItem());
-                  }}
-                >
-                  MINT
-                </Button>
-              ) : (
-                <Button type="primary" onClick={loadWeb3Modal}>
-                  CONNECT WALLET
-                </Button>
-              )}
-            </div>
-
-            <div style={{ width: 820, margin: "auto", paddingBottom: 256 }}>
-              <List
-                bordered
-                dataSource={yourCollectibles}
-                renderItem={item => {
-                  const id = item.id.toNumber();
-
-                  console.log("IMAGE", item.image);
-
-                  return (
-                    <List.Item key={id + "_" + item.uri + "_" + item.owner}>
-                      <Card
-                        title={
-                          <div>
-                            <span style={{ fontSize: 18, marginRight: 8 }}>{item.name}</span>
-                          </div>
-                        }
-                      >
-                        <a
-                          href={
-                            "https://opensea.io/assets/" +
-                            (readContracts && readContracts.YourCollectible && readContracts.YourCollectible.address) +
-                            "/" +
-                            item.id
-                          }
-                          target="_blank"
-                        >
-                          <img src={item.image} />
-                        </a>
-                        <div>{item.description}</div>
-                      </Card>
-
-                      <div>
-                        owner:{" "}
-                        <Address
-                          address={item.owner}
-                          ensProvider={mainnetProvider}
-                          blockExplorer={blockExplorer}
-                          fontSize={16}
-                        />
-                        <AddressInput
-                          ensProvider={mainnetProvider}
-                          placeholder="transfer to address"
-                          value={transferToAddresses[id]}
-                          onChange={newValue => {
-                            const update = {};
-                            update[id] = newValue;
-                            setTransferToAddresses({ ...transferToAddresses, ...update });
-                          }}
-                        />
-                        <Button
-                          onClick={() => {
-                            console.log("writeContracts", writeContracts);
-                            tx(writeContracts.YourCollectible.transferFrom(address, transferToAddresses[id], id));
-                          }}
-                        >
-                          Transfer
-                        </Button>
-                      </div>
-                    </List.Item>
-                  );
-                }}
-              />
-            </div>
-            <div style={{ maxWidth: 820, margin: "auto", marginTop: 32, paddingBottom: 256 }}>
-              🛠 built with{" "}
-              <a href="https://github.com/austintgriffith/scaffold-eth" target="_blank">
-                🏗 scaffold-eth
-              </a>
-              🍴{" "}
-              <a href="https://github.com/austintgriffith/scaffold-eth" target="_blank">
-                Fork this repo
-              </a>{" "}
-              and build a cool SVG NFT!
-            </div>
-          </Route>
-          <Route exact path="/ElectroCityNFT">
             {/*
                 🎛 this scaffolding is full of commonly used components
                 this <Contract/> component will automatically parse your ABI
@@ -632,7 +443,7 @@ function App(props) {
                           }
                           target="_blank"
                         >
-                          <img src={item.image} />
+                          <img width="400px" src={item.image} />
                         </a>
                         <div>{item.description}</div>
                       </Card>
@@ -682,21 +493,6 @@ function App(props) {
             </div>
           </Route>
           <Route path="/debug">
-            <div style={{ padding: 32 }}>
-              <Address
-                value={readContracts && readContracts.YourCollectible && readContracts.YourCollectible.address}
-              />
-            </div>
-
-            <Contract
-              name="YourCollectible"
-              signer={userProvider.getSigner()}
-              provider={localProvider}
-              address={address}
-              blockExplorer={blockExplorer}
-            />
-          </Route>
-          <Route path="/debug2">
             <div style={{ padding: 32 }}>
               <Address value={readContracts && readContracts.ElectroCityNFT && readContracts.ElectroCityNFT.address} />
             </div>
