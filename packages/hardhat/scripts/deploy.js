@@ -70,12 +70,18 @@ const main = async () => {
   })
   */
 
-  // If you want to verify your contract on etherscan
-  console.log(chalk.blue('verifying on etherscan'))
-  await run("verify:verify", {
-    address: electroCityNFT.address,
-    // constructorArguments: args // If your contract has constructor arguments, you can pass them as an array
-  })
+  let verifyNetworks = ["kovan", "goerli", "mainnet", "rinkeby", "ropsten", "matic", "mumbai", "xDai", "POA"]
+  let targetNetwork = process.env.HARDHAT_NETWORK || config.defaultNetwork
+
+  if (verifyNetworks.includes(targetNetwork)) {
+    // If you want to verify your contract on etherscan
+    console.log(chalk.blue('verifying on etherscan'))
+    await run("verify:verify", {
+      address: electroCityNFT.address,
+      // constructorArguments: args // If your contract has constructor arguments, you can pass them as an array
+    })
+
+  }
 
   console.log(
     " 💾  Artifacts (address, abi, and args) saved to: ",
