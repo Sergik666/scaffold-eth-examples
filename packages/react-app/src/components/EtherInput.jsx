@@ -73,6 +73,8 @@ export default function EtherInput(props) {
   useEffect(() => {
     if (!currentValue) {
       setDisplay("");
+    } else {
+      setDisplay(currentValue);
     }
   }, [currentValue]);
 
