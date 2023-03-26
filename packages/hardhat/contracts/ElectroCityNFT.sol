@@ -19,6 +19,7 @@ contract ElectroCityNFT is ERC721, ERC721Enumerable, ERC721Burnable, Ownable {
 
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
+    uint256 private _maxTotalSupply = 1000;
 
     struct TokenData {
         bytes8 seed;
@@ -37,7 +38,7 @@ contract ElectroCityNFT is ERC721, ERC721Enumerable, ERC721Burnable, Ownable {
     }
 
     function mint() public payable {
-        // require(totalSupply() < 1000, "Maximum token supply reached");
+        require(_tokenIds.current() < _maxTotalSupply, "Maximum token supply reached");
         require(msg.value >= 0.01 ether, "Price is 0.01 ETH");
 
         _tokenIds.increment();
@@ -50,6 +51,10 @@ contract ElectroCityNFT is ERC721, ERC721Enumerable, ERC721Burnable, Ownable {
         tokenData[tokenId] = TokenData(seed);
 
         _mint(msg.sender, tokenId);
+    }
+
+    function maxTotalSupply() public view returns (uint256) {
+        return _maxTotalSupply;
     }
 
     function changeLightIsOn(bool _lightIsOn) public onlyLightOperators {

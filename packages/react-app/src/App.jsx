@@ -15,7 +15,7 @@ import { ethers } from "ethers";
 import "./App.css";
 // import assets from "./assets.js";
 import { BlockPicker } from "react-color";
-import { Account, Address, AddressInput, Contract, Faucet, GasGauge, Header, Ramp, ThemeSwitch } from "./components";
+import { Account, Address, AddressInput, Contract, Faucet, GasGauge, Header, Ramp, ThemeSwitch, EtherInput } from "./components";
 import { DAI_ABI, DAI_ADDRESS, INFURA_ID, NETWORK, NETWORKS } from "./constants";
 import { Transactor } from "./helpers";
 import {
@@ -178,7 +178,7 @@ function App(props) {
     "0x34aA3F359A9D614239015126635CE7732c18fDF3",
   ]); */
 
- 
+
   // keep track of a variable from the contract in the local React state:
   const electroCityNFTBalance = useContractReader(readContracts, "ElectroCityNFT", "balanceOf", [address]);
   console.log("🤗 balance:", electroCityNFTBalance);
@@ -190,6 +190,8 @@ function App(props) {
 
   const yourElectroCityNFTBalance = electroCityNFTBalance && electroCityNFTBalance.toNumber && electroCityNFTBalance.toNumber();
   const [yourElectroCityNFTs, setYourElectroCityNFTs] = useState();
+  const [totalSupply, setTotalSupply] = useState(0);
+  const [maxTotalSupply, setMaxTotalSupply] = useState(0);
 
   useEffect(() => {
     const updateYourElectroCityNFTs = async () => {
@@ -221,9 +223,16 @@ function App(props) {
         }
       }
       setYourElectroCityNFTs(collectibleUpdate.reverse());
+
+      if (readContracts?.ElectroCityNFT) {
+        setTotalSupply(await readContracts.ElectroCityNFT.totalSupply());
+        setMaxTotalSupply(await readContracts.ElectroCityNFT.maxTotalSupply());
+      }
     };
     updateYourElectroCityNFTs();
   }, [address, yourElectroCityNFTBalance, electroCityNFTLightSwitchedEvent]);
+
+  const [amount, setAmount] = useState('1');
 
   /*
   const addressFromENS = useResolveName(mainnetProvider, "austingriffith.eth");
@@ -401,20 +410,30 @@ function App(props) {
 
             <div style={{ maxWidth: 820, margin: "auto", marginTop: 32, paddingBottom: 32 }}>
               {isSigner ? (
-                <Button
-                  type="primary"
-                  onClick={() => {
-                    tx(writeContracts.ElectroCityNFT.mint({ value:  ethers.utils.parseEther('0.01') }));
-                  }}
-                >
-                  MINT
-                </Button>
+                <div style={{ display: "flex", justifyContent: "center" }}>
+                  <div style={{ width: 200 }}>
+                    <EtherInput
+                      value={amount}
+                      onChange={value => {
+                        setAmount(value);
+                      }} />
+                  </div>
+                  <Button
+                    type="primary"
+                    onClick={() => {
+                      tx(writeContracts.ElectroCityNFT.mint({ value: ethers.utils.parseEther(amount) }));
+                    }}
+                  >
+                    MINT
+                  </Button></div>
               ) : (
                 <Button type="primary" onClick={loadWeb3Modal}>
                   CONNECT WALLET
                 </Button>
               )}
             </div>
+
+            <div style={{ paddingBottom: "32px" }}>Tokens minted {totalSupply.toString()} of {maxTotalSupply.toString()}</div>
 
             <div style={{ width: 820, margin: "auto", paddingBottom: 256 }}>
               <List
