@@ -232,7 +232,7 @@ function App(props) {
     updateYourElectroCityNFTs();
   }, [address, yourElectroCityNFTBalance, electroCityNFTLightSwitchedEvent]);
 
-  const [amount, setAmount] = useState('1');
+  const [amount, setAmount] = useState('5');
 
   /*
   const addressFromENS = useResolveName(mainnetProvider, "austingriffith.eth");
@@ -410,14 +410,22 @@ function App(props) {
 
             <div style={{ maxWidth: 820, margin: "auto", marginTop: 32, paddingBottom: 32 }}>
               {isSigner ? (
-                <div style={{ display: "flex", justifyContent: "center" }}>
-                  <div style={{ width: 200 }}>
+                <div style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  gap: "10px"
+                }}>
+                  <span>Payment donation amount:</span>
+                  <div style={{ width: 80 }}>
                     <EtherInput
                       value={amount}
+                      placeholder={"min 0.1"}
                       onChange={value => {
                         setAmount(value);
                       }} />
                   </div>
+                  <span>MATIC</span>
                   <Button
                     type="primary"
                     onClick={() => {

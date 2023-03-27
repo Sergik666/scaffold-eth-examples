@@ -39,7 +39,7 @@ contract ElectroCityNFT is ERC721, ERC721Enumerable, ERC721Burnable, Ownable {
 
     function mint() public payable {
         require(_tokenIds.current() < _maxTotalSupply, "Maximum token supply reached");
-        require(msg.value >= 0.01 ether, "Price is 0.01 ETH");
+        require(msg.value >= 0.1 ether, "Price is 0.1 ETH");
 
         _tokenIds.increment();
         uint256 tokenId = _tokenIds.current();
