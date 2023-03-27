@@ -31,7 +31,7 @@ git clone git@github.com:Sergik666/scaffold-eth-examples.git svg-nft
 
 cd svg-nft
 
-git checkout loogies-svg-nft-my-work
+git checkout electro-city-nft
 ```
 
 ```bash
