@@ -44,3 +44,4 @@ yarn deploy
 
 📱 Open http://localhost:3000 to see the app
 
+sergik666-electro-city-nft

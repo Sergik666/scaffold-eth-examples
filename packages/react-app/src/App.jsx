@@ -30,6 +30,9 @@ import {
   useUserProvider,
 } from "./hooks";
 
+import token_preview from './images/token_preview2.png';
+import opensea_preview from './images/opensea_preview.png';
+
 const { BufferList } = require("bl");
 // https://www.npmjs.com/package/ipfs-http-client
 const ipfsAPI = require("ipfs-http-client");
@@ -58,7 +61,7 @@ const ipfs = ipfsAPI({ host: "ipfs.infura.io", port: "5001", protocol: "https" }
 */
 
 /// 📡 What chain are your contracts deployed to?
-const targetNetwork = NETWORKS.localhost; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
+const targetNetwork = NETWORKS.mumbai; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
 
 // 😬 Sorry for all the console logging
 const DEBUG = true;
@@ -86,7 +89,7 @@ if (DEBUG) console.log("📡 Connecting to Mainnet Ethereum");
 // attempt to connect to our own scaffold eth rpc and if that fails fall back to infura...
 // Using StaticJsonRpcProvider as the chainId won't change see https://github.com/ethers-io/ethers.js/issues/901
 const scaffoldEthProvider = new StaticJsonRpcProvider("https://rpc.scaffoldeth.io:48544");
-const mainnetInfura = new StaticJsonRpcProvider("https://mainnet.infura.io/v3/" + INFURA_ID);
+const mainnetInfura = new StaticJsonRpcProvider("https://polygon-mainnet.infura.io/v3/" + INFURA_ID);
 // ( ⚠️ Getting "failed to meet quorum" errors? Check your INFURA_I
 
 // 🏠 Your local provider is usually pointed at your local blockchain
@@ -385,7 +388,17 @@ function App(props) {
               }}
               to="/"
             >
-              Your ElectroCity NFT
+              Description
+            </Link>
+          </Menu.Item>
+          <Menu.Item key="/mint">
+            <Link
+              onClick={() => {
+                setRoute("/mint");
+              }}
+              to="/mint"
+            >
+              Mint and Your ElectroCity NFT
             </Link>
           </Menu.Item>
           <Menu.Item key="/debug">
@@ -402,6 +415,35 @@ function App(props) {
 
         <Switch>
           <Route exact path="/">
+            <div style={{ maxWidth: 820, margin: "auto", marginTop: 32, paddingBottom: 32 }}>
+              <h2>History of the token's creation</h2>
+              <p>
+                When I started the NFT SVG challenge, I didn't have thoughts about what to draw. I'm Ukrainian and still be in Ukraine. We constantly have a blackout due to rocket attacks from russia.
+              </p>
+              <p>
+                <a target="_blank" href='https://www.youtube.com/@austingriffith3550'>Austin Griffith</a> knew about that and suggested creating an NFT that would reflect the availability of electricity in my home.
+                I decided to make an apartment building with lights on and off.
+                In the process, I chose to add a background (a sun or a moon) and more different buildings.
+              </p>
+              <p>
+                The next step was to write a script that turns the lights on and off in the contract.
+                The script runs in the cloud in another country.
+                It's trying to access the site's page running at my house on Raspberry PI.
+                Depending on the site's response, the script changes the state of the light in the contract if it's different from the current one.
+              </p>
+              <h2>Token generation. Image and Properties</h2>
+              <p>
+              For a mint token, you need to call the mint method on the contract with an arbitrary amount of Matic (minimum 0.1) or transfer any amount in Matic (minimum 0.1) to the token contract.
+              The maximum tokens’ number is 1000. Tokens are displayed on the OpenSea website, where you can trade with them.
+              </p>
+              <img src={token_preview} />
+              <p>In the contract, "seed" (byte 8) is stored for each token.</p>
+              <p>Method tokenURI generates an SVG based on "seed".</p>
+              <p>It also generates four groups of values "Celestial Body", "Time of Day", "Weather", and "Cosmos". They are also counted based on seed.</p>
+              <img src={opensea_preview} />
+            </div>
+          </Route>
+          <Route exact path="/mint">
             {/*
                 🎛 this scaffolding is full of commonly used components
                 this <Contract/> component will automatically parse your ABI
