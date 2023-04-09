@@ -11,12 +11,6 @@ const changeLightIsOn = async function (lightIsOn) {
 
     const provider = new ethers.providers.JsonRpcProvider(process.env.RPC_URL);
 
-    const gasPrice = await provider.getGasPrice();
-    if (gasPrice.gt(ethers.utils.parseUnits(process.env.MAX_GAS_PRICE, "gwei"))) {
-        console.log(`Gas price is (${gasPrice.toNumber()}) too high. Aborting transaction...`);
-        return;
-    }
-
     const account = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
 
     const contract = new ethers.Contract(process.env.CONTRACT_ADDRESS, abi, account);
@@ -25,6 +19,13 @@ const changeLightIsOn = async function (lightIsOn) {
     console.log(`currentLightIsOn: ${currentLightIsOn}, new lightIsOn: ${lightIsOn}`);
     if (currentLightIsOn === lightIsOn) {
         console.log(`No change!`);
+        return;
+    }
+
+    const gasPrice = await provider.getGasPrice();
+    if (gasPrice.gt(ethers.utils.parseUnits(process.env.MAX_GAS_PRICE, "gwei"))) {
+        const gasPriceInGwei = ethers.utils.formatUnits(gasPrice, "gwei");
+        console.log(`Gas price is (${gasPriceInGwei} gwei) too high. Aborting transaction...`);
         return;
     }
 
