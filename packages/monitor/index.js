@@ -11,6 +11,12 @@ const changeLightIsOn = async function (lightIsOn) {
 
     const provider = new ethers.providers.JsonRpcProvider(process.env.RPC_URL);
 
+    const gasPrice = await provider.getGasPrice();
+    if (gasPrice.gt(ethers.utils.parseUnits(process.env.MAX_GAS_PRICE, "gwei"))) {
+        console.log(`Gas price is (${gasPrice.toNumber()}) too high. Aborting transaction...`);
+        return;
+    }
+
     const account = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
 
     const contract = new ethers.Contract(process.env.CONTRACT_ADDRESS, abi, account);
@@ -22,7 +28,7 @@ const changeLightIsOn = async function (lightIsOn) {
         return;
     }
 
-    const changeLightIsOnTx = await contract.changeLightIsOn(lightIsOn);
+    const changeLightIsOnTx = await contract.changeLightIsOn(lightIsOn, { gasPrice: gasPrice });
     const transactionReceipt = await changeLightIsOnTx.wait();
     if (transactionReceipt.status === 0) {
         throw new Error("changeLightIsOnTx failed");
@@ -64,9 +70,9 @@ const main = async function () {
     // await changeLightIsOn(false);
 
     let prevAvailableStatus = await isSiteAvailable(process.env.SITE_URL);
-    while(true) {
+    while (true) {
         const availableStatus = await isSiteAvailable(process.env.SITE_URL);
-        if(prevAvailableStatus !== availableStatus && process.env.REPEAT_REQUEST_TIMEOUT_MS) {
+        if (prevAvailableStatus !== availableStatus && process.env.REPEAT_REQUEST_TIMEOUT_MS) {
             prevAvailableStatus = availableStatus;
             console.log(`Repeat request timeout: ${process.env.REPEAT_REQUEST_TIMEOUT_MS}ms`);
             await sleep(process.env.REPEAT_REQUEST_TIMEOUT_MS);
@@ -80,8 +86,8 @@ const main = async function () {
 }
 
 main()
-  .then(() => process.exit(0))
-  .catch((error) => {
-    console.error(error);
-    process.exit(1);
-  });
+    .then(() => process.exit(0))
+    .catch((error) => {
+        console.error(error);
+        process.exit(1);
+    });
