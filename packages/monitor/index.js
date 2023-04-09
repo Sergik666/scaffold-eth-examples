@@ -71,17 +71,22 @@ const main = async function () {
 
     let prevAvailableStatus = await isSiteAvailable(process.env.SITE_URL);
     while (true) {
-        const availableStatus = await isSiteAvailable(process.env.SITE_URL);
-        if (prevAvailableStatus !== availableStatus && process.env.REPEAT_REQUEST_TIMEOUT_MS) {
-            prevAvailableStatus = availableStatus;
-            console.log(`Repeat request timeout: ${process.env.REPEAT_REQUEST_TIMEOUT_MS}ms`);
-            await sleep(process.env.REPEAT_REQUEST_TIMEOUT_MS);
-            continue;
-        }
+        try {
+            const availableStatus = await isSiteAvailable(process.env.SITE_URL);
+            if (prevAvailableStatus !== availableStatus && process.env.REPEAT_REQUEST_TIMEOUT_MS) {
+                prevAvailableStatus = availableStatus;
+                console.log(`Repeat request timeout: ${process.env.REPEAT_REQUEST_TIMEOUT_MS}ms`);
+                await sleep(process.env.REPEAT_REQUEST_TIMEOUT_MS);
+                continue;
+            }
 
-        prevAvailableStatus = availableStatus;
-        await changeLightIsOn(availableStatus);
-        await sleep(process.env.REQUEST_TIMEOUT_MS);
+            prevAvailableStatus = availableStatus;
+            await changeLightIsOn(availableStatus);
+            await sleep(process.env.REQUEST_TIMEOUT_MS);
+        }
+        catch (error) {
+            console.error(error);
+        }
     }
 }
 
