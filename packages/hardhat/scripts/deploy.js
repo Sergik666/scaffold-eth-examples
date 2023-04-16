@@ -26,7 +26,7 @@ const main = async () => {
 
   // yourCollectible.transferOwnership("0x34aA3F359A9D614239015126635CE7732c18fDF3") //austingriffith.eth
 
-  const electroCityNFT = await deploy("ElectroCityNFT",/*,[ bytes32Array ]*/) // <-- add in constructor args like line 19 vvvv
+  const rebirth = await deploy("Rebirth",[ 'salt' ]) // <-- add in constructor args like line 19 vvvv
 
   //const yourContract = await ethers.getContractAt('YourContract', "0xaAC799eC2d00C013f1F11c37E654e59B0429DF6A") //<-- if you want to instantiate a version of a contract at a specific address!
   //const secondContract = await deploy("SecondContract")
@@ -77,7 +77,7 @@ const main = async () => {
     // If you want to verify your contract on etherscan
     console.log(chalk.blue('verifying on etherscan'))
     await run("verify:verify", {
-      address: electroCityNFT.address,
+      address: rebirth.address,
       // constructorArguments: args // If your contract has constructor arguments, you can pass them as an array
     })
 
