@@ -1,37 +1,38 @@
-# 🏗 scaffold-eth - 🔵 ElectroCity SVG NFT
+# 🏗 scaffold-eth - 🔵 Rebirth Contract
 
-## History of the token's creation
-              
-When I started the NFT SVG challenge, I didn't have thoughts about what to draw. I'm Ukrainian and still be in Ukraine. We constantly have a blackout due to rocket attacks from russia.
+## Description
 
-[Austin Griffith](https://www.youtube.com/@austingriffith3550) knew about that and suggested creating an NFT that would reflect the availability of electricity in my home.
-I decided to make an apartment building with lights on and off.
-In the process, I chose to add a background (a sun or a moon) and more different buildings.
+Reloading the contract at the same address. An example was made after watching a video on this topic (on russian language): https://youtu.be/6i6pKU_FaJs
 
-The next step was to write a script that turns the lights on and off in the contract.
-The script runs in the cloud in another country.
-It's trying to access the site's page running at my house on Raspberry PI.
-Depending on the site's response, the script changes the state of the light in the contract if it's different from the current one.
+We have a main contract for restore [Rebirth Contract](https://sepolia.etherscan.io/address/0xE690D00A1ae04B2aa0a2B903980360D4981b94ac) that loads a contract to load other contracts [Deploy Contract](https://sepolia.etherscan.io/address/0x56a37913eF6C67a31fD7B453308DcE49).
+For deploy "Deploy Contract" to same address used salt and same contract bytecode.
 
-## Token generation. Image and Properties
+"Deploy Contract" deployed "Contract A", "Contract B" or bytecode. And deployed ["Main Contract" address](https://sepolia.etherscan.io/address/0x20D50924B373978162DF1AFc079f0c9A62Fcb669) always same if nonce = 0 and on this address not contract.
 
-For a mint token, you need to call the mint method on the contract with an arbitrary amount of Matic (minimum 0.1) or transfer any amount in Matic (minimum 0.1) to the token contract.
-The maximum tokens’ number is 1000. Tokens are displayed on the OpenSea website, where you can trade with them.
+To update the "master contract" at the same address, you need to delete the previous "Main Contract" and "Deploy Contract", for this we use the "selfdestruct" method.
+After the destruction of the contract, its "nonce" is reset, so that the new "Main Contract" will receive the same address.
 
-![Token preview](./packages/react-app/src/images/token_preview2.png)
+## Step by step
 
-In the contract, "seed" (byte 8) is stored for each token.
-Method tokenURI generates an SVG based on "seed"
-It also generates four groups of values "Celestial Body", "Time of Day", "Weather", and "Cosmos". They are also counted based on seed.
+1. "Rebirth Contract" click "Deploy"
+2. "Deploy Contract" click "Deploy Contract A"
+3. "Main Contract" click "Destroy"
+4. "Deploy Contract" click "Destroy"
+5. "Rebirth Contract" click "Deploy"
+6. "Deploy Contract" click "Deploy Bytecode"
 
-![Token preview](./packages/react-app/src/images/opensea_preview.png)
+## Testing
+
+The tests also implemented checking the receipt of the same address
+
+## Installation
 
 ```bash
-git clone git@github.com:Sergik666/scaffold-eth-examples.git svg-nft
+git clone git@github.com:Sergik666/scaffold-eth-examples.git contract-rebirth
 
-cd svg-nft
+cd contract-rebirth
 
-git checkout electro-city-nft
+git checkout contract-rebirth
 ```
 
 ```bash
@@ -49,7 +50,7 @@ yarn start
 > in a second terminal window:
 
 ```bash
-cd svg-nft
+cd contract-rebirth
 
 yarn chain
 
@@ -61,7 +62,7 @@ yarn chain
 
 
 ```bash
-cd svg-nft
+cd contract-rebirth
 
 yarn deploy
 
@@ -69,5 +70,13 @@ yarn deploy
 
 📱 Open http://localhost:3000 to see the app
 
+
+For testing
+
+> in a fourth terminal window:
+```bash
+yarn test
+```
+
 Site demo:
-https://sergik666-electro-city-nft
+https://sergik666-contract-rebirth-nft

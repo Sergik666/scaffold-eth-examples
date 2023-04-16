@@ -289,9 +289,43 @@ function App(props) {
         <Switch>
           <Route exact path="/">
             <div style={{ maxWidth: 820, margin: "auto", marginTop: 32, paddingBottom: 32 }}>
-              <h2>Description </h2>
+              <h2>Description</h2>
               <p>
-                xxxx
+                Reloading the contract at the same address. An example was made after watching a video on this topic (on russian language): <a href="https://youtu.be/6i6pKU_FaJs" target="_blank">https://youtu.be/6i6pKU_FaJs</a>
+              </p>
+              <p>
+                We have a main contract for restore (<a href="https://sepolia.etherscan.io/address/0xE690D00A1ae04B2aa0a2B903980360D4981b94ac" target="_blank">Rebirth Contract</a>) that loads a contract to load other contracts (<a href="https://sepolia.etherscan.io/address/0x56a37913eF6C67a31fD7B453308DcE49" target="_blank">Deploy Contract</a>).
+                For deploy "Deploy Contract" to same address used salt and same contract bytecode.
+              </p>
+              <p>
+                "Deploy Contract" deployed "Contract A", "Contract B" or bytecode. And deployed <a href="https://sepolia.etherscan.io/address/0x20D50924B373978162DF1AFc079f0c9A62Fcb669" target="_blank">"Main Contract" address</a> always same if nonce = 0 and on this address not contract.
+              </p>
+              <p>
+                To update the "master contract" at the same address, you need to delete the previous "Main Contract" and "Deploy Contract", for this we use the "selfdestruct" method.
+                After the destruction of the contract, its "nonce" is reset, so that the new "Main Contract" will receive the same address.
+              </p>
+              <h2>Step by step</h2>
+              <p>
+                1. "Rebirth Contract" click "Deploy"
+              </p>
+              <p>
+                2. "Deploy Contract" click "Deploy Contract A"
+              </p>
+              <p>
+                3. "Main Contract" click "Destroy"
+              </p>
+              <p>
+                4. "Deploy Contract" click "Destroy"
+              </p>
+              <p>
+                5. "Rebirth Contract" click "Deploy"
+              </p>
+              <p>
+                6. "Deploy Contract" click "Deploy Bytecode"
+              </p>
+              <h2>Testing</h2>
+              <p>
+                The tests also implemented checking the receipt of the same address
               </p>
             </div>
           </Route>
