@@ -22,7 +22,7 @@ require("@nomiclabs/hardhat-etherscan");
 //
 // Select the network you want to deploy to here:
 //
-const defaultNetwork = "localhost";
+const defaultNetwork = "sepolia";
 
 function mnemonic() {
   try {
@@ -79,6 +79,12 @@ module.exports = {
     },
     goerli: {
       url: "https://goerli.infura.io/v3/460f40a260564ac4a4f4b3fffb032dad", //<---- YOUR INFURA ID! (or it won't work)
+      accounts: {
+        mnemonic: mnemonic(),
+      },
+    },
+    sepolia: {
+      url: "https://sepolia.infura.io/v3/9e31f94611854c008c1c86a45383dcc3", //<---- YOUR INFURA ID! (or it won't work)
       accounts: {
         mnemonic: mnemonic(),
       },
