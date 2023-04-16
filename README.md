@@ -79,4 +79,4 @@ yarn test
 ```
 
 Site demo:
-https://sergik666-contract-rebirth-nft
+https://sergik666-rebirth-contract.surge.sh
