@@ -15,7 +15,7 @@ import { ethers } from "ethers";
 import "./App.css";
 // import assets from "./assets.js";
 import { BlockPicker } from "react-color";
-import { Account, Address, AddressInput, Contract, Faucet, GasGauge, Header, Ramp, ThemeSwitch, EtherInput } from "./components";
+import { Account, Address, AddressInput, Contract, Faucet, GasGauge, Header, Ramp, ThemeSwitch, EtherInput, RebirthUI } from "./components";
 import { DAI_ABI, DAI_ADDRESS, INFURA_ID, NETWORK, NETWORKS } from "./constants";
 import { Transactor } from "./helpers";
 import {
@@ -61,7 +61,7 @@ const ipfs = ipfsAPI({ host: "ipfs.infura.io", port: "5001", protocol: "https" }
 */
 
 /// 📡 What chain are your contracts deployed to?
-const targetNetwork = NETWORKS.matic; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
+const targetNetwork = NETWORKS.localhost; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
 
 // 😬 Sorry for all the console logging
 const DEBUG = true;
@@ -183,59 +183,58 @@ function App(props) {
 
 
   // keep track of a variable from the contract in the local React state:
-  const electroCityNFTBalance = useContractReader(readContracts, "ElectroCityNFT", "balanceOf", [address]);
-  console.log("🤗 balance:", electroCityNFTBalance);
+  // const electroCityNFTBalance = useContractReader(readContracts, "ElectroCityNFT", "balanceOf", [address]);
+  // console.log("🤗 balance:", electroCityNFTBalance);
 
   // // 📟 Listen for broadcast events
-  const electroCityNFTLightSwitchedEvent = useEventListener(readContracts, "ElectroCityNFT", "LightSwitched", localProvider, 1);
   // const electroCityNFTTransferEvents = useEventListener(readContracts, "ElectroCityNFT", "Transfer", localProvider, 1);
   // console.log("📟 ElectroCityNFT Transfer events:", ElectroCityNFTTransferEvents);
 
-  const yourElectroCityNFTBalance = electroCityNFTBalance && electroCityNFTBalance.toNumber && electroCityNFTBalance.toNumber();
-  const [yourElectroCityNFTs, setYourElectroCityNFTs] = useState();
-  const [totalSupply, setTotalSupply] = useState(0);
-  const [maxTotalSupply, setMaxTotalSupply] = useState(0);
+  // const yourElectroCityNFTBalance = electroCityNFTBalance && electroCityNFTBalance.toNumber && electroCityNFTBalance.toNumber();
+  // const [yourElectroCityNFTs, setYourElectroCityNFTs] = useState();
+  // const [totalSupply, setTotalSupply] = useState(0);
+  // const [maxTotalSupply, setMaxTotalSupply] = useState(0);
 
-  useEffect(() => {
-    const updateYourElectroCityNFTs = async () => {
-      const collectibleUpdate = [];
-      for (let tokenIndex = 0; tokenIndex < electroCityNFTBalance; tokenIndex++) {
-        try {
-          console.log("GEtting token index", tokenIndex);
-          const tokenId = await readContracts.ElectroCityNFT.tokenOfOwnerByIndex(address, tokenIndex);
-          console.log("tokenId", tokenId);
-          const tokenURI = await readContracts.ElectroCityNFT.tokenURI(tokenId);
-          const jsonManifestString = atob(tokenURI.substring(29));
-          console.log("jsonManifestString", jsonManifestString);
-          /*
-          const ipfsHash = tokenURI.replace("https://ipfs.io/ipfs/", "");
-          console.log("ipfsHash", ipfsHash);
+  // useEffect(() => {
+  //   const updateYourElectroCityNFTs = async () => {
+  //     const collectibleUpdate = [];
+  //     for (let tokenIndex = 0; tokenIndex < electroCityNFTBalance; tokenIndex++) {
+  //       try {
+  //         console.log("GEtting token index", tokenIndex);
+  //         const tokenId = await readContracts.ElectroCityNFT.tokenOfOwnerByIndex(address, tokenIndex);
+  //         console.log("tokenId", tokenId);
+  //         const tokenURI = await readContracts.ElectroCityNFT.tokenURI(tokenId);
+  //         const jsonManifestString = atob(tokenURI.substring(29));
+  //         console.log("jsonManifestString", jsonManifestString);
+  //         /*
+  //         const ipfsHash = tokenURI.replace("https://ipfs.io/ipfs/", "");
+  //         console.log("ipfsHash", ipfsHash);
 
-          const jsonManifestBuffer = await getFromIPFS(ipfsHash);
+  //         const jsonManifestBuffer = await getFromIPFS(ipfsHash);
 
-        */
-          try {
-            const jsonManifest = JSON.parse(jsonManifestString);
-            console.log("jsonManifest", jsonManifest);
-            collectibleUpdate.push({ id: tokenId, uri: tokenURI, owner: address, ...jsonManifest });
-          } catch (e) {
-            console.log(e);
-          }
-        } catch (e) {
-          console.log(e);
-        }
-      }
-      setYourElectroCityNFTs(collectibleUpdate.reverse());
+  //       */
+  //         try {
+  //           const jsonManifest = JSON.parse(jsonManifestString);
+  //           console.log("jsonManifest", jsonManifest);
+  //           collectibleUpdate.push({ id: tokenId, uri: tokenURI, owner: address, ...jsonManifest });
+  //         } catch (e) {
+  //           console.log(e);
+  //         }
+  //       } catch (e) {
+  //         console.log(e);
+  //       }
+  //     }
+  //     setYourElectroCityNFTs(collectibleUpdate.reverse());
 
-      if (readContracts?.ElectroCityNFT) {
-        setTotalSupply(await readContracts.ElectroCityNFT.totalSupply());
-        setMaxTotalSupply(await readContracts.ElectroCityNFT.maxTotalSupply());
-      }
-    };
-    updateYourElectroCityNFTs();
-  }, [address, yourElectroCityNFTBalance, electroCityNFTLightSwitchedEvent]);
+  //     if (readContracts?.ElectroCityNFT) {
+  //       setTotalSupply(await readContracts.ElectroCityNFT.totalSupply());
+  //       setMaxTotalSupply(await readContracts.ElectroCityNFT.maxTotalSupply());
+  //     }
+  //   };
+  //   updateYourElectroCityNFTs();
+  // }, [address, yourElectroCityNFTBalance, electroCityNFTLightSwitchedEvent]);
 
-  const [amount, setAmount] = useState('5');
+  // const [amount, setAmount] = useState('5');
 
   /*
   const addressFromENS = useResolveName(mainnetProvider, "austingriffith.eth");
@@ -391,14 +390,14 @@ function App(props) {
               Description
             </Link>
           </Menu.Item>
-          <Menu.Item key="/mint">
+          <Menu.Item key="/rebirth">
             <Link
               onClick={() => {
-                setRoute("/mint");
+                setRoute("/rebirth");
               }}
-              to="/mint"
+              to="/rebirth"
             >
-              Mint and Your ElectroCity NFT
+              Rebirth Contract
             </Link>
           </Menu.Item>
           <Menu.Item key="/debug">
@@ -416,42 +415,60 @@ function App(props) {
         <Switch>
           <Route exact path="/">
             <div style={{ maxWidth: 820, margin: "auto", marginTop: 32, paddingBottom: 32 }}>
-              <h2>History of the token's creation</h2>
+              <h2>Description </h2>
               <p>
-                When I started the NFT SVG challenge, I didn't have thoughts about what to draw. I'm Ukrainian and still be in Ukraine. We constantly have a blackout due to rocket attacks from russia.
+                xxxx
               </p>
-              <p>
-                <a target="_blank" href='https://www.youtube.com/@austingriffith3550'>Austin Griffith</a> knew about that and suggested creating an NFT that would reflect the availability of electricity in my home.
-                I decided to make an apartment building with lights on and off.
-                In the process, I chose to add a background (a sun or a moon) and more different buildings.
-              </p>
-              <p>
-                The next step was to write a script that turns the lights on and off in the contract.
-                The script runs in the cloud in another country.
-                It's trying to access the site's page running at my house on Raspberry PI.
-                Depending on the site's response, the script changes the state of the light in the contract if it's different from the current one.
-              </p>
-              <h2>Token generation. Image and Properties</h2>
-              <p>
-              For a mint token, you need to call the mint method on the contract with an arbitrary amount of Matic (minimum 0.1) or transfer any amount in Matic (minimum 0.1) to the token contract.
-              The maximum tokens’ number is 1000. Tokens are displayed on the OpenSea website, where you can trade with them.
-              </p>
-              <img src={token_preview} />
-              <p>In the contract, "seed" (byte 8) is stored for each token.</p>
-              <p>Method tokenURI generates an SVG based on "seed".</p>
-              <p>It also generates four groups of values "Celestial Body", "Time of Day", "Weather", and "Cosmos". They are also counted based on seed.</p>
-              <img src={opensea_preview} />
             </div>
           </Route>
-          <Route exact path="/mint">
-            {/*
-                🎛 this scaffolding is full of commonly used components
-                this <Contract/> component will automatically parse your ABI
-                and give you a form to interact with it locally
-            */}
+          <Route exact path="/rebirth">
+            <RebirthUI
+              address={address}
+              readContracts={readContracts}
+              writeContracts={writeContracts}
+              localProvider={localProvider}
+              mainnetProvider={mainnetProvider}
+              blockExplorer={blockExplorer}
+              tx={tx}
+            ></RebirthUI>
+            {/* <div style={{ maxWidth: 820, margin: "auto", marginTop: 32, paddingBottom: 32 }}>
+              <h2>Rebirth Contract</h2>
+              <div style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                gap: "10px"
+              }}>
+                <span>Deploy contract deployer</span>
+                <Button
+                  type="primary"
+                  onClick={() => {
+                    tx(writeContracts.Rebirth.deploy());
+                  }}
+                >
+                  Deploy
+                </Button>
+              </div>
 
-            <div style={{ maxWidth: 820, margin: "auto", marginTop: 32, paddingBottom: 32 }}>
-              {isSigner ? (
+              <h2>Deploy Contract</h2>
+              <div style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                gap: "10px"
+              }}>
+                <Button
+                  type="primary"
+                  onClick={() => {
+                    tx(writeContracts.Rebirth.deploy());
+                  }}
+                >
+                  Destroy
+                </Button>
+              </div> */}
+
+
+            {/* {isSigner ? (
                 <div style={{
                   display: "flex",
                   justifyContent: "center",
@@ -480,12 +497,12 @@ function App(props) {
                 <Button type="primary" onClick={loadWeb3Modal}>
                   CONNECT WALLET
                 </Button>
-              )}
-            </div>
+              )} */}
+            {/* </div> */}
 
-            <div style={{ paddingBottom: "32px" }}>Tokens minted {totalSupply.toString()} of {maxTotalSupply.toString()}</div>
+            {/* <div style={{ paddingBottom: "32px" }}>Tokens minted {totalSupply.toString()} of {maxTotalSupply.toString()}</div> */}
 
-            <div style={{ width: 820, margin: "auto", paddingBottom: 256 }}>
+            {/* <div style={{ width: 820, margin: "auto", paddingBottom: 256 }}>
               <List
                 bordered
                 dataSource={yourElectroCityNFTs}
@@ -548,7 +565,7 @@ function App(props) {
                   );
                 }}
               />
-            </div>
+            </div> */}
             <div style={{ maxWidth: 820, margin: "auto", marginTop: 32, paddingBottom: 256 }}>
               🛠 built with{" "}
               <a href="https://github.com/austintgriffith/scaffold-eth" target="_blank">
@@ -567,7 +584,7 @@ function App(props) {
             </div>
 
             <Contract
-              name="ElectroCityNFT"
+              name="Rebirth"
               signer={userProvider.getSigner()}
               provider={localProvider}
               address={address}
