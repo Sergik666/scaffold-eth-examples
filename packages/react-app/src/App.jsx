@@ -1,4 +1,3 @@
-import { LinkOutlined } from "@ant-design/icons";
 import { StaticJsonRpcProvider, Web3Provider } from "@ethersproject/providers";
 import { formatEther, parseEther } from "@ethersproject/units";
 import WalletConnectProvider from "@walletconnect/web3-provider";
@@ -7,14 +6,9 @@ import "antd/dist/antd.css";
 import { useUserAddress } from "eth-hooks";
 import { utils } from "ethers";
 import React, { useCallback, useEffect, useState } from "react";
-import ReactJson from "react-json-view";
 import { BrowserRouter, Link, Route, Switch } from "react-router-dom";
-import StackGrid from "react-stack-grid";
 import Web3Modal from "web3modal";
-import { ethers } from "ethers";
 import "./App.css";
-// import assets from "./assets.js";
-import { BlockPicker } from "react-color";
 import { Account, Address, AddressInput, Contract, Faucet, GasGauge, Header, Ramp, ThemeSwitch, EtherInput, RebirthUI } from "./components";
 import { DAI_ABI, DAI_ADDRESS, INFURA_ID, NETWORK, NETWORKS } from "./constants";
 import { Transactor } from "./helpers";
@@ -30,56 +24,13 @@ import {
   useUserProvider,
 } from "./hooks";
 
-import token_preview from './images/token_preview2.png';
-import opensea_preview from './images/opensea_preview.png';
-
-const { BufferList } = require("bl");
-// https://www.npmjs.com/package/ipfs-http-client
-const ipfsAPI = require("ipfs-http-client");
-
-const ipfs = ipfsAPI({ host: "ipfs.infura.io", port: "5001", protocol: "https" });
-
-// console.log("📦 Assets: ", assets);
-
-/*
-    Welcome to 🏗 scaffold-eth !
-
-    Code:
-    https://github.com/austintgriffith/scaffold-eth
-
-    Support:
-    https://t.me/joinchat/KByvmRe5wkR-8F_zz6AjpA
-    or DM @austingriffith on twitter or telegram
-
-    You should get your own Infura.io ID and put it in `constants.js`
-    (this is your connection to the main Ethereum network for ENS etc.)
-
-
-    🌏 EXTERNAL CONTRACTS:
-    You can also bring in contract artifacts in `constants.js`
-    (and then use the `useExternalContractLoader()` hook!)
-*/
 
 /// 📡 What chain are your contracts deployed to?
-const targetNetwork = NETWORKS.localhost; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
+const targetNetwork = NETWORKS.sepolia; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
 
 // 😬 Sorry for all the console logging
-const DEBUG = true;
+const DEBUG = false;
 
-// helper function to "Get" from IPFS
-// you usually go content.toString() after this...
-const getFromIPFS = async hashToGet => {
-  for await (const file of ipfs.get(hashToGet)) {
-    console.log(file.path);
-    if (!file.content) continue;
-    const content = new BufferList();
-    for await (const chunk of file.content) {
-      content.append(chunk);
-    }
-    console.log(content);
-    return content;
-  }
-};
 
 // 🛰 providers
 if (DEBUG) console.log("📡 Connecting to Mainnet Ethereum");
@@ -88,8 +39,10 @@ if (DEBUG) console.log("📡 Connecting to Mainnet Ethereum");
 //
 // attempt to connect to our own scaffold eth rpc and if that fails fall back to infura...
 // Using StaticJsonRpcProvider as the chainId won't change see https://github.com/ethers-io/ethers.js/issues/901
-const scaffoldEthProvider = new StaticJsonRpcProvider("https://rpc.scaffoldeth.io:48544");
-const mainnetInfura = new StaticJsonRpcProvider("https://polygon-mainnet.infura.io/v3/" + INFURA_ID);
+const scaffoldEthProvider = null;// new StaticJsonRpcProvider("https://rpc.scaffoldeth.io:48544");
+const mainnetInfura = new StaticJsonRpcProvider("https://mainnet.infura.io/v3/" + INFURA_ID);
+// const mainnetInfura = new StaticJsonRpcProvider("https://sepolia.infura.io/v3/" + INFURA_ID);
+// const mainnetInfura = new StaticJsonRpcProvider("https://polygon-mainnet.infura.io/v3/" + INFURA_ID);
 // ( ⚠️ Getting "failed to meet quorum" errors? Check your INFURA_I
 
 // 🏠 Your local provider is usually pointed at your local blockchain
@@ -174,72 +127,6 @@ function App(props) {
   useOnBlock(mainnetProvider, () => {
     console.log(`⛓ A new mainnet block is here: ${mainnetProvider._lastBlockNumber}`);
   });
-
-  // Then read your DAI balance like:
-  /*
-  const myMainnetDAIBalance = useContractReader({ DAI: mainnetDAIContract }, "DAI", "balanceOf", [
-    "0x34aA3F359A9D614239015126635CE7732c18fDF3",
-  ]); */
-
-
-  // keep track of a variable from the contract in the local React state:
-  // const electroCityNFTBalance = useContractReader(readContracts, "ElectroCityNFT", "balanceOf", [address]);
-  // console.log("🤗 balance:", electroCityNFTBalance);
-
-  // // 📟 Listen for broadcast events
-  // const electroCityNFTTransferEvents = useEventListener(readContracts, "ElectroCityNFT", "Transfer", localProvider, 1);
-  // console.log("📟 ElectroCityNFT Transfer events:", ElectroCityNFTTransferEvents);
-
-  // const yourElectroCityNFTBalance = electroCityNFTBalance && electroCityNFTBalance.toNumber && electroCityNFTBalance.toNumber();
-  // const [yourElectroCityNFTs, setYourElectroCityNFTs] = useState();
-  // const [totalSupply, setTotalSupply] = useState(0);
-  // const [maxTotalSupply, setMaxTotalSupply] = useState(0);
-
-  // useEffect(() => {
-  //   const updateYourElectroCityNFTs = async () => {
-  //     const collectibleUpdate = [];
-  //     for (let tokenIndex = 0; tokenIndex < electroCityNFTBalance; tokenIndex++) {
-  //       try {
-  //         console.log("GEtting token index", tokenIndex);
-  //         const tokenId = await readContracts.ElectroCityNFT.tokenOfOwnerByIndex(address, tokenIndex);
-  //         console.log("tokenId", tokenId);
-  //         const tokenURI = await readContracts.ElectroCityNFT.tokenURI(tokenId);
-  //         const jsonManifestString = atob(tokenURI.substring(29));
-  //         console.log("jsonManifestString", jsonManifestString);
-  //         /*
-  //         const ipfsHash = tokenURI.replace("https://ipfs.io/ipfs/", "");
-  //         console.log("ipfsHash", ipfsHash);
-
-  //         const jsonManifestBuffer = await getFromIPFS(ipfsHash);
-
-  //       */
-  //         try {
-  //           const jsonManifest = JSON.parse(jsonManifestString);
-  //           console.log("jsonManifest", jsonManifest);
-  //           collectibleUpdate.push({ id: tokenId, uri: tokenURI, owner: address, ...jsonManifest });
-  //         } catch (e) {
-  //           console.log(e);
-  //         }
-  //       } catch (e) {
-  //         console.log(e);
-  //       }
-  //     }
-  //     setYourElectroCityNFTs(collectibleUpdate.reverse());
-
-  //     if (readContracts?.ElectroCityNFT) {
-  //       setTotalSupply(await readContracts.ElectroCityNFT.totalSupply());
-  //       setMaxTotalSupply(await readContracts.ElectroCityNFT.maxTotalSupply());
-  //     }
-  //   };
-  //   updateYourElectroCityNFTs();
-  // }, [address, yourElectroCityNFTBalance, electroCityNFTLightSwitchedEvent]);
-
-  // const [amount, setAmount] = useState('5');
-
-  /*
-  const addressFromENS = useResolveName(mainnetProvider, "austingriffith.eth");
-  console.log("🏷 Resolved austingriffith.eth as:",addressFromENS)
-  */
 
   //
   // 🧫 DEBUG 👨🏻‍🔬
@@ -359,19 +246,6 @@ function App(props) {
     );
   }
 
-  const [sending, setSending] = useState();
-  const [ipfsHash, setIpfsHash] = useState();
-  const [ipfsDownHash, setIpfsDownHash] = useState();
-
-  const [downloading, setDownloading] = useState();
-  const [ipfsContent, setIpfsContent] = useState();
-
-  const [transferToAddresses, setTransferToAddresses] = useState({});
-
-  const [loadedAssets, setLoadedAssets] = useState();
-
-  const galleryList = [];
-
   return (
     <div className="App">
       {/* ✏️ Edit the header and change the title to your project name */}
@@ -427,156 +301,12 @@ function App(props) {
               readContracts={readContracts}
               writeContracts={writeContracts}
               localProvider={localProvider}
+              userProvider={userProvider}
               mainnetProvider={mainnetProvider}
               blockExplorer={blockExplorer}
               tx={tx}
+              debug={DEBUG}
             ></RebirthUI>
-            {/* <div style={{ maxWidth: 820, margin: "auto", marginTop: 32, paddingBottom: 32 }}>
-              <h2>Rebirth Contract</h2>
-              <div style={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                gap: "10px"
-              }}>
-                <span>Deploy contract deployer</span>
-                <Button
-                  type="primary"
-                  onClick={() => {
-                    tx(writeContracts.Rebirth.deploy());
-                  }}
-                >
-                  Deploy
-                </Button>
-              </div>
-
-              <h2>Deploy Contract</h2>
-              <div style={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                gap: "10px"
-              }}>
-                <Button
-                  type="primary"
-                  onClick={() => {
-                    tx(writeContracts.Rebirth.deploy());
-                  }}
-                >
-                  Destroy
-                </Button>
-              </div> */}
-
-
-            {/* {isSigner ? (
-                <div style={{
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  gap: "10px"
-                }}>
-                  <span>Payment donation amount:</span>
-                  <div style={{ width: 80 }}>
-                    <EtherInput
-                      value={amount}
-                      placeholder={"min 0.1"}
-                      onChange={value => {
-                        setAmount(value);
-                      }} />
-                  </div>
-                  <span>MATIC</span>
-                  <Button
-                    type="primary"
-                    onClick={() => {
-                      tx(writeContracts.ElectroCityNFT.mint({ value: ethers.utils.parseEther(amount) }));
-                    }}
-                  >
-                    MINT
-                  </Button></div>
-              ) : (
-                <Button type="primary" onClick={loadWeb3Modal}>
-                  CONNECT WALLET
-                </Button>
-              )} */}
-            {/* </div> */}
-
-            {/* <div style={{ paddingBottom: "32px" }}>Tokens minted {totalSupply.toString()} of {maxTotalSupply.toString()}</div> */}
-
-            {/* <div style={{ width: 820, margin: "auto", paddingBottom: 256 }}>
-              <List
-                bordered
-                dataSource={yourElectroCityNFTs}
-                renderItem={item => {
-                  const id = item.id.toNumber();
-
-                  // console.log("IMAGE", item.image);
-
-                  return (
-                    <List.Item key={id + "_" + item.uri + "_" + item.owner}>
-                      <Card
-                        title={
-                          <div>
-                            <span style={{ fontSize: 18, marginRight: 8 }}>{item.name}</span>
-                          </div>
-                        }
-                      >
-                        <a
-                          href={
-                            "https://opensea.io/assets/matic/" +
-                            (readContracts && readContracts.ElectroCityNFT && readContracts.ElectroCityNFT.address) +
-                            "/" +
-                            item.id
-                          }
-                          target="_blank"
-                        >
-                          <img width="400px" src={item.image} />
-                        </a>
-                        <div>{item.description}</div>
-                      </Card>
-
-                      <div>
-                        owner:{" "}
-                        <Address
-                          address={item.owner}
-                          ensProvider={mainnetProvider}
-                          blockExplorer={blockExplorer}
-                          fontSize={16}
-                        />
-                        <AddressInput
-                          ensProvider={mainnetProvider}
-                          placeholder="transfer to address"
-                          value={transferToAddresses[id]}
-                          onChange={newValue => {
-                            const update = {};
-                            update[id] = newValue;
-                            setTransferToAddresses({ ...transferToAddresses, ...update });
-                          }}
-                        />
-                        <Button
-                          onClick={() => {
-                            console.log("writeContracts", writeContracts);
-                            tx(writeContracts.ElectroCityNFT.transferFrom(address, transferToAddresses[id], id));
-                          }}
-                        >
-                          Transfer
-                        </Button>
-                      </div>
-                    </List.Item>
-                  );
-                }}
-              />
-            </div> */}
-            <div style={{ maxWidth: 820, margin: "auto", marginTop: 32, paddingBottom: 256 }}>
-              🛠 built with{" "}
-              <a href="https://github.com/austintgriffith/scaffold-eth" target="_blank">
-                🏗 scaffold-eth
-              </a>
-              🍴{" "}
-              <a href="https://github.com/austintgriffith/scaffold-eth" target="_blank">
-                Fork this repo
-              </a>{" "}
-              and build a cool SVG NFT!
-            </div>
           </Route>
           <Route path="/debug">
             <div style={{ padding: 32 }}>
