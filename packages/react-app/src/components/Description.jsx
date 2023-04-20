@@ -40,7 +40,7 @@ export default function Description(props) {
       </pre>
     </p>
     <p>
-      To create a contract based on byte code, you can use the low-level method
+      To create a contract based on byte code, you can use the low-level method:
     </p>
     <p className="code">
       <pre>

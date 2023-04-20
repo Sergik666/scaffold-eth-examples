@@ -28,7 +28,7 @@ Example of the contract’s creating and converting to an address:
 address(new ContractA());
 ```
 
-To create a contract based on byte code, you can use the low-level method
+To create a contract based on byte code, you can use the low-level method:
 
 ```solidity
 address contractAddress;
