@@ -1,3 +1,14 @@
 .App {
   text-align: center;
 }
+
+.code {
+  display: flex;
+  justify-content: center;
+}
+
+.code pre {
+  text-align: left;
+  border: 1px dotted;
+  padding: 10px;
+}
